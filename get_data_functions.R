@@ -6,4 +6,3 @@ get_cran_data <- function(){
     utils::download.file(f_url, f_name)
     
 }
-get_cran_data()
