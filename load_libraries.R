@@ -1,0 +1,12 @@
+if(!require(pacman)){install.packages("pacman")}
+pacman::p_load(
+    "healthyverse",
+    "timetk",
+    "modeltime",
+    "modeltime.h2o",
+    "modeltime.resample",
+    "modeltime.gluonts",
+    "tidyverse",
+    "h2o",
+    "modeltime"
+)
