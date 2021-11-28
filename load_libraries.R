@@ -5,8 +5,8 @@ pacman::p_load(
     "modeltime",
     "modeltime.h2o",
     "modeltime.resample",
-    "modeltime.gluonts",
     "modeltime",
     "tidyverse",
-    "h2o"
+    "h2o",
+    "fs"
 )
