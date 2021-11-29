@@ -7,6 +7,7 @@ pacman::p_load(
     "modeltime.resample",
     "modeltime",
     "tidyverse",
+    "lubridate",
     "h2o",
     "fs"
 )
