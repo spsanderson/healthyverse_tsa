@@ -7,7 +7,6 @@ get_cran_data <- function() {
   write_csv(data, "cran_logs.csv")
 }
 
-
 load_cran_data <- function() {
   data <- read_csv("cran_logs.csv")
 }
