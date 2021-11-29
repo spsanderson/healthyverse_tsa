@@ -18,6 +18,7 @@ source("00_scripts/ts_decomp.R")
 
 ```{r get_data}
 get_cran_data()
+get_package_release_data()
 csv_to_rds()
 downloads_tbl <- downloads_processed_tbl()
 
@@ -42,3 +43,4 @@ data_tbl <- downloads_tbl %>%
     select(-r_version, -r_arch, -r_os)
 ```
 
+Now lets take a look at a time-series plot of the total daily downloads by package.
