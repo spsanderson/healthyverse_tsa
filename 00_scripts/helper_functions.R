@@ -1,10 +1,10 @@
 dl_birth_datetime <- function() {
-  file_info("cran_logs.csv") %>%
+  file_info("01_data/cran_logs.csv") %>%
     pull(birth_time)
 }
 
 max_cran_datetime <- function() {
-  read.csv("cran_logs.csv") %>%
+  read.csv("01_data/cran_logs.csv") %>%
     as_tibble() %>%
     select(date, time) %>%
     mutate(
