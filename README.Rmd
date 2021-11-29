@@ -1,11 +1,13 @@
 ---
 title: "Time Series Analysis and Modeling of the Healthyverse Packages"
+author: "Steven P. Sanderson II, MPH - Data Scientist/IT Manager"
+date: "Report Date: `r format(Sys.time(), '%B %d, %Y')`"
 output: github_document
 ---
 
 ```{r setup, include=FALSE, warning=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
-source("load_libraries.R")
+source("00_scripts/load_libraries.R")
 ```
 
 ## GitHub Documents
