@@ -8,6 +8,13 @@ output: github_document
 ```{r setup, include=FALSE, warning=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 source("00_scripts/load_libraries.R")
+source("00_scripts/get_data_functions.R")
+```
+
+```{r get_data}
+get_cran_data()
+csv_to_rds()
+load_cran_data()
 ```
 
 ## GitHub Documents
