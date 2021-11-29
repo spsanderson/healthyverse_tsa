@@ -7,6 +7,11 @@ get_cran_data <- function() {
   write_csv(data, "01_data/cran_logs.csv")
 }
 
+csv_to_rds <- function(){
+  data <- read.csv("01_data/cran_logs.csv")
+  saveRDS(data, "01_data/cran_logs.rds")
+}
+
 load_cran_data <- function() {
   data <- readRDS("01_data/cran_logs.rds") %>%
     as_tibble()
