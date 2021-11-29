@@ -3,8 +3,9 @@ title: "Time Series Analysis and Modeling of the Healthyverse Packages"
 output: github_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+source("load_libraries.R")
 ```
 
 ## GitHub Documents
