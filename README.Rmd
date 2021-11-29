@@ -1,12 +1,20 @@
 ---
 title: "Time Series Analysis and Modeling of the Healthyverse Packages"
-author: "Steven P. Sanderson II, MPH - Data Scientist/IT Manager"
-date: "Report Date: `r format(Sys.time(), '%B %d, %Y')`"
 output: github_document
+always_allow_html: true
+author: "Steven P. Sanderson II, MPH - Data Scientist/IT Manager"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 ---
 
-```{r setup, include=FALSE, warning=FALSE, message=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = TRUE,
+    message = FALSE,
+    warning = FALSE,
+    fig.path = "man/figures/README-",
+    fig.width = 12,
+    fig.height = 10
+)
 source("00_scripts/load_libraries.R")
 source("00_scripts/get_data_functions.R")
 source("00_scripts/helper_functions.R")
@@ -21,7 +29,8 @@ get_cran_data()
 get_package_release_data()
 csv_to_rds()
 downloads_tbl <- downloads_processed_tbl()
-
+pkg_tbl <- readRDS("01_data/pkg_release_tbl.rds") %>%
+    mutate(date = as.Date(date))
 glimpse(downloads_tbl)
 ```
 
@@ -44,3 +53,34 @@ data_tbl <- downloads_tbl %>%
 ```
 
 Now lets take a look at a time-series plot of the total daily downloads by package.
+We will use a log scale and place a verticle line at each version release for each
+package.
+
+```{r initial_ts_plot, echo=FALSE}
+ts_downloads_tbl(
+    .data = data_tbl,
+    .by_time = "day",
+    package
+) %>%
+ggplot(aes(date, log1p(value))) +
+  theme_bw() +
+  geom_point(aes(group = package, color = package), size = 1) +
+  ggtitle(paste("Package Downloads: {healthyverse}")) +
+  geom_smooth(method = "loess", color = "black",  se = FALSE) +
+  geom_vline(
+    data = pkg_tbl
+    , aes(xintercept = as.numeric(date))
+    , color = "red"
+    , lwd = 1
+    , lty = "solid"
+  ) +
+  facet_wrap(package ~., ncol = 2, scales = "free_x") +
+  theme_minimal() +
+  labs(
+    subtitle = "Vertical lines represent release dates",
+    x = "Date",
+    y = "log1p(Counts)",
+    color = "Package"
+  ) +
+  theme(legend.position = "bottom")
+```
