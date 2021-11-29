@@ -9,6 +9,7 @@ pacman::p_load(
     "tidyverse",
     "lubridate",
     "skimr",
+    "TSstudio",
     "h2o",
     "fs"
 )
