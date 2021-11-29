@@ -28,24 +28,17 @@ The last day in the dataset is `r max_cran_datetime()`, the file was birthed on:
 `r dl_birth_datetime()`, and is `r hours_since_cran_log_update()` hours old.
 `r update_log_message()`
 
-## GitHub Documents
+Now that we have our data lets take a look at it using the `skimr` package.
 
-This is an R Markdown format used for publishing markdown documents to GitHub. When you click the **Knit** button all R code chunks are run and a markdown file (.md) suitable for publishing to GitHub is generated.
-
-## Including Code
-
-You can include R code in the document as follows:
-
-```{r cars}
-summary(cars)
+```{r skim_data}
+skim(downloads_tbl)
 ```
 
-## Including Plots
+We can see that the following columns are missing a lot of data and for us are most
+likely not useful anyways, so we will drop them `c(r_version, r_arch, r_os)`
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r data_trimmed}
+data_tbl <- downloads_tbl %>%
+    select(-r_version, -r_arch, -r_os)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
