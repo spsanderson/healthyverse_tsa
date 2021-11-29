@@ -26,6 +26,7 @@ glimpse(downloads_tbl)
 
 The last day in the dataset is `r max_cran_datetime()`, the file was birthed on:
 `r dl_birth_datetime()`, and is `r hours_since_cran_log_update()` hours old.
+`r update_log_message()`
 
 ## GitHub Documents
 
