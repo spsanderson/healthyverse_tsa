@@ -28,7 +28,7 @@ glimpse(downloads_tbl)
     ## $ ip_id     <int> 2069, 2804, 78827, 27595, 90474, 90474, 42435, 74, 7655, 638~
 
 The last day in the dataset is 2021-11-27 18:56:46, the file was birthed
-on: 2021-11-28 10:56:41, and is 21 hours old.
+on: 2021-11-28 10:56:41, and is 21 hours old. Happy analyzing!
 
 ## GitHub Documents
 
