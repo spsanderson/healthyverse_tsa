@@ -8,5 +8,8 @@ get_cran_data <- function() {
 }
 
 load_cran_data <- function() {
-  data <- read_csv("cran_logs.csv")
+  data <- readRDS("01_data/cran_logs.rds") %>%
+    as_tibble()
+  
+  return(data)
 }
