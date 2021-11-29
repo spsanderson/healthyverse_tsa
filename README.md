@@ -30,6 +30,66 @@ glimpse(downloads_tbl)
 The last day in the dataset is 2021-11-27 18:56:46, the file was birthed
 on: 2021-11-28 10:56:41, and is 21 hours old. Happy analyzing!
 
+Now that we have our data lets take a look at it using the `skimr`
+package.
+
+``` r
+skim(downloads_tbl)
+```
+
+|                                                  |                |
+|:-------------------------------------------------|:---------------|
+| Name                                             | downloads\_tbl |
+| Number of rows                                   | 23710          |
+| Number of columns                                | 11             |
+| \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   |                |
+| Column type frequency:                           |                |
+| character                                        | 6              |
+| Date                                             | 1              |
+| numeric                                          | 2              |
+| POSIXct                                          | 1              |
+| Timespan                                         | 1              |
+| \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ |                |
+| Group variables                                  | None           |
+
+Data summary
+
+**Variable type: character**
+
+| skim\_variable | n\_missing | complete\_rate | min | max | empty | n\_unique | whitespace |
+|:---------------|-----------:|---------------:|----:|----:|------:|----------:|-----------:|
+| r\_version     |      15970 |           0.33 |   5 |   5 |     0 |        28 |          0 |
+| r\_arch        |      15970 |           0.33 |   3 |   7 |     0 |         5 |          0 |
+| r\_os          |      15970 |           0.33 |   7 |  15 |     0 |         9 |          0 |
+| package        |          0 |           1.00 |   8 |  13 |     0 |         5 |          0 |
+| version        |          0 |           1.00 |   5 |   5 |     0 |        12 |          0 |
+| country        |       2040 |           0.91 |   2 |   2 |     0 |        97 |          0 |
+
+**Variable type: Date**
+
+| skim\_variable | n\_missing | complete\_rate | min        | max        | median     | n\_unique |
+|:---------------|-----------:|---------------:|:-----------|:-----------|:-----------|----------:|
+| date           |          0 |              1 | 2020-11-23 | 2021-11-27 | 2021-07-15 |       370 |
+
+**Variable type: numeric**
+
+| skim\_variable | n\_missing | complete\_rate |       mean |         sd |  p0 |      p25 |      p50 |     p75 |    p100 | hist  |
+|:---------------|-----------:|---------------:|-----------:|-----------:|----:|---------:|---------:|--------:|--------:|:------|
+| size           |          0 |              1 | 1525455.03 | 1875798.84 | 357 | 27383.25 | 238424.5 | 3245134 | 5677952 | ▇▁▂▂▁ |
+| ip\_id         |          0 |              1 |    8028.96 |   14895.76 |   1 |   219.00 |   2989.0 |    8425 |  143633 | ▇▁▁▁▁ |
+
+**Variable type: POSIXct**
+
+| skim\_variable | n\_missing | complete\_rate | min                 | max                 | median              | n\_unique |
+|:---------------|-----------:|---------------:|:--------------------|:--------------------|:--------------------|----------:|
+| date\_time     |          0 |              1 | 2020-11-23 09:00:41 | 2021-11-27 18:56:46 | 2021-07-15 05:42:20 |     13831 |
+
+**Variable type: Timespan**
+
+| skim\_variable | n\_missing | complete\_rate | min | max | median | n\_unique |
+|:---------------|-----------:|---------------:|----:|----:|-------:|----------:|
+| time           |          0 |              1 |   0 |  59 |     10 |        60 |
+
 ## GitHub Documents
 
 This is an R Markdown format used for publishing markdown documents to
