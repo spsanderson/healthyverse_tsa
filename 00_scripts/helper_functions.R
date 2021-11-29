@@ -21,8 +21,10 @@ hours_since_cran_log_update <- function(){
 
 update_log_message <- function(){
   if(hours_since_cran_log_update() > 36){
-    print("Consider updating the cran log file from the package-downloads project.")
+    msg <- "Consider updating the cran log file from the package-downloads project."
   } else {
-    print("Happy analyzing!")
+    msg <- "Happy analyzing!"
   }
+  
+  return(msg)
 }
