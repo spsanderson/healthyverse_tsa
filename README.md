@@ -103,7 +103,7 @@ data_tbl <- downloads_tbl %>%
 ```
 
 Now lets take a look at a time-series plot of the total daily downloads
-by package. We will use a log scale and place a verticle line at each
+by package. We will use a log scale and place a vertical line at each
 version release for each package.
 
-![](man/figures/README-initial_ts_plot-1.png)<!-- -->
+![](man/figures/README-initial_ts_plot-1.png)<!-- -->![](man/figures/README-initial_ts_plot-2.png)<!-- -->
