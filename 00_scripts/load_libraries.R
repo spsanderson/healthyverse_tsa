@@ -8,6 +8,7 @@ pacman::p_load(
     "modeltime",
     "tidyverse",
     "lubridate",
+    "skimr",
     "h2o",
     "fs"
 )
