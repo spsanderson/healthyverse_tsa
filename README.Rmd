@@ -9,13 +9,23 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 source("00_scripts/load_libraries.R")
 source("00_scripts/get_data_functions.R")
+source("00_scripts/helper_functions.R")
+source("00_scripts/data_manipulation_functions.R")
+source("00_scripts/ts_decomp.R")
 ```
+
+## Get Data
 
 ```{r get_data}
 get_cran_data()
 csv_to_rds()
-load_cran_data()
+downloads_tbl <- downloads_processed_tbl()
+
+glimpse(downloads_tbl)
 ```
+
+The last day in the dataset is `r max_cran_datetime()`, the file was birthed on:
+`r dl_birth_datetime()`, and is `r hours_since_cran_log_update()` hours old.
 
 ## GitHub Documents
 
