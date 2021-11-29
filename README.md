@@ -1,15 +1,17 @@
 Time Series Analysis and Modeling of the Healthyverse Packages
 ================
 Steven P. Sanderson II, MPH - Data Scientist/IT Manager
-Report Date: November 29, 2021
+29 November, 2021
 
 ## Get Data
 
 ``` r
 get_cran_data()
+get_package_release_data()
 csv_to_rds()
 downloads_tbl <- downloads_processed_tbl()
-
+pkg_tbl <- readRDS("01_data/pkg_release_tbl.rds") %>%
+    mutate(date = as.Date(date))
 glimpse(downloads_tbl)
 ```
 
@@ -28,7 +30,8 @@ glimpse(downloads_tbl)
     ## $ ip_id     <int> 2069, 2804, 78827, 27595, 90474, 90474, 42435, 74, 7655, 638~
 
 The last day in the dataset is 2021-11-27 18:56:46, the file was birthed
-on: 2021-11-28 10:56:41, and is 21 hours old. Happy analyzing!
+on: 2021-11-29 11:38:26, and is 45.69 hours old. Consider updating the
+cran log file from the package-downloads project.
 
 Now that we have our data lets take a look at it using the `skimr`
 package.
@@ -90,33 +93,17 @@ Data summary
 |:---------------|-----------:|---------------:|----:|----:|-------:|----------:|
 | time           |          0 |              1 |   0 |  59 |     10 |        60 |
 
-## GitHub Documents
-
-This is an R Markdown format used for publishing markdown documents to
-GitHub. When you click the **Knit** button all R code chunks are run and
-a markdown file (.md) suitable for publishing to GitHub is generated.
-
-## Including Code
-
-You can include R code in the document as follows:
+We can see that the following columns are missing a lot of data and for
+us are most likely not useful anyways, so we will drop them
+`c(r_version, r_arch, r_os)`
 
 ``` r
-summary(cars)
+data_tbl <- downloads_tbl %>%
+    select(-r_version, -r_arch, -r_os)
 ```
 
-    ##      speed           dist       
-    ##  Min.   : 4.0   Min.   :  2.00  
-    ##  1st Qu.:12.0   1st Qu.: 26.00  
-    ##  Median :15.0   Median : 36.00  
-    ##  Mean   :15.4   Mean   : 42.98  
-    ##  3rd Qu.:19.0   3rd Qu.: 56.00  
-    ##  Max.   :25.0   Max.   :120.00
+Now lets take a look at a time-series plot of the total daily downloads
+by package. We will use a log scale and place a verticle line at each
+version release for each package.
 
-## Including Plots
-
-You can also embed plots, for example:
-
-![](README_files/figure-gfm/pressure-1.png)<!-- -->
-
-Note that the `echo = FALSE` parameter was added to the code chunk to
-prevent printing of the R code that generated the plot.
+![](man/figures/README-initial_ts_plot-1.png)<!-- -->
