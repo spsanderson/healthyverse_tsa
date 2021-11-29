@@ -53,7 +53,7 @@ data_tbl <- downloads_tbl %>%
 ```
 
 Now lets take a look at a time-series plot of the total daily downloads by package.
-We will use a log scale and place a verticle line at each version release for each
+We will use a log scale and place a vertical line at each version release for each
 package.
 
 ```{r initial_ts_plot, echo=FALSE}
@@ -81,6 +81,43 @@ ggplot(aes(date, log1p(value))) +
     x = "Date",
     y = "log1p(Counts)",
     color = "Package"
+  ) +
+  theme(legend.position = "bottom")
+
+ts_downloads_tbl(
+    .data = data_tbl,
+    .by_time = "day",
+    package
+) %>%
+  select(date, value) %>%
+  summarise_by_time(
+    .date_var = date,
+    .by = "day",
+    Actual = sum(value, na.rm = TRUE)
+  ) %>%
+  tk_augment_differences(.value = Actual, .differences = 1) %>%
+  tk_augment_differences(.value = Actual, .differences = 2) %>%
+  rename(velocity = contains("_diff1")) %>%
+  rename(acceleration = contains("_diff2")) %>%
+  pivot_longer(-date) %>%
+  mutate(name = str_to_title(name)) %>%
+  mutate(name = as_factor(name)) %>%
+  ggplot(aes(x = date, y = value, group = name)) +
+  geom_point(alpha = .2) +
+  geom_vline(
+    data = pkg_tbl
+    , aes(xintercept = as.numeric(date), color = package)
+    , lwd = 1
+    , lty = "solid"
+  ) +
+  facet_wrap(name ~ ., ncol = 1, scale = "free") +
+  theme_minimal() +
+  labs(
+    title = "Total Downloads: Trend, Velocity, and Accelertion",
+    subtitle = "Vertical Lines Indicate a CRAN Release date for a package.",
+    x = "Date",
+    y = "",
+    color = ""
   ) +
   theme(legend.position = "bottom")
 ```
