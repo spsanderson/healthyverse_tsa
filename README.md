@@ -1,5 +1,7 @@
 Time Series Analysis and Modeling of the Healthyverse Packages
 ================
+Steven P. Sanderson II, MPH - Data Scientist/IT Manager
+Report Date: November 28, 2021
 
 ## GitHub Documents
 
