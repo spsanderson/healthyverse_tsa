@@ -13,3 +13,22 @@ downloads_processed_tbl <- function(){
     return(data_tbl)
 }
 
+ts_downloads_tbl <- function(.data, .by_time = "day", ...){
+    
+    if(!is.data.frame(.data)){
+        stop(call. = FALSE, ".data must be a tibble/data.frame")
+    }
+    
+    grp_var_expr <- rlang::enquos(...)
+    
+    data_tbl <- as_tibble(.data) %>%
+        group_by(date, ...) %>%
+        summarise_by_time(
+            .date_var = date,
+            .by       = .by_time,
+            value     = n()
+        )
+    
+    return(data_tbl)
+        
+}
