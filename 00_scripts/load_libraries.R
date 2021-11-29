@@ -10,6 +10,8 @@ pacman::p_load(
     "lubridate",
     "skimr",
     "TSstudio",
+    "knitr",
+    "countrycode",
     "h2o",
     "fs"
 )
