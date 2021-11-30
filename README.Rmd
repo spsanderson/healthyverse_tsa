@@ -205,4 +205,40 @@ plot_acf_diagnostics(
 ## Feature Engineering
 
 Now that we have our basic data and a shot of what it looks like, let's add some
-features to our data which can be very helpful in modeling.
+features to our data which can be very helpful in modeling. Lets start by making
+a `tibble` that is aggregated by the day and package, as we are going to be interested
+in forecasting the next 30 days for each package. First lets get our base data.
+
+```{r base_data_frame, echo=FALSE}
+base_data <- ts_downloads_tbl(
+  .data    = data_tbl,
+  .by_time = "day",
+  package
+)
+```
+
+Lets glimpse it: `r glimpse(base_data)`
+
+Now we are going to do some basic preprocessing.
+
+```{r preprocess}
+data_padded_tbl <- base_data %>%
+  pad_by_time(
+    .date_var  = date,
+    .pad_value = 0
+  )
+
+# Get log interval and standardization parameters
+log_params  <- liv(data_padded_tbl$value, limit_lower = 0, offset = 1)
+limit_lower <- log_params$limit_lower
+limit_upper <- log_params$limit_upper
+offset      <- log_params$offset
+standard_params <- standard_vec(data_padded_tbl$value)
+mean            <- standard_params$mean
+sd              <- standard_params$sd
+  
+data_prepared_tbl <- data_padded_tbl %>%
+  # Preprocess
+  mutate(value_trans = liv(value, limit_lower = 0, offset = 1, silent = TRUE)$log_scaled) %>%
+  mutate(value_trans = standard_vec(value_trans, silent = TRUE)$standard_scaled)
+```
