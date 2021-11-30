@@ -7,6 +7,7 @@ pacman::p_load(
     "modeltime.resample",
     "modeltime",
     "tidyverse",
+    "tidymodels",
     "lubridate",
     "skimr",
     "TSstudio",
