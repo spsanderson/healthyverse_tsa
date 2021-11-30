@@ -24,19 +24,22 @@ source("00_scripts/ts_decomp.R")
 
 ## Get Data
 
-```{r get_data}
+```{r get_data, echo=FALSE}
 get_cran_data()
 get_package_release_data()
 csv_to_rds()
 downloads_tbl <- downloads_processed_tbl()
 pkg_tbl <- readRDS("01_data/pkg_release_tbl.rds") %>%
     mutate(date = as.Date(date))
+```
+
+```{r glimpse_data}
 glimpse(downloads_tbl)
 ```
 
 The last day in the dataset is `r max_cran_datetime()`, the file was birthed on:
-`r dl_birth_datetime()`, and is `r hours_since_cran_log_update()` hours old.
-`r update_log_message()`
+`r dl_birth_datetime()`, and at report knit time is `r hours_since_cran_log_update()` 
+hours old. `r update_log_message()`
 
 Now that we have our data lets take a look at it using the `skimr` package.
 
@@ -47,7 +50,7 @@ skim(downloads_tbl)
 We can see that the following columns are missing a lot of data and for us are most
 likely not useful anyways, so we will drop them `c(r_version, r_arch, r_os)`
 
-```{r data_trimmed}
+```{r data_trimmed, echo=FALSE}
 data_tbl <- downloads_tbl %>%
     select(-r_version, -r_arch, -r_os)
 ```
@@ -57,12 +60,24 @@ We will use a log scale and place a vertical line at each version release for ea
 package.
 
 ```{r initial_ts_plot, echo=FALSE}
+md <- ts_downloads_tbl(data_tbl, "day", package) %>% 
+  ungroup() %>% 
+  select(date) %>% 
+  distinct() %>% 
+  filter(date == max(date)) %>%
+  pull(date)
+
+last_values <- ts_downloads_tbl(data_tbl, "day", package) %>% 
+  ungroup() %>%
+  filter(date == md)
+
 ts_downloads_tbl(
     .data = data_tbl,
     .by_time = "day",
     package
 ) %>%
-ggplot(aes(date, log1p(value))) +
+  ungroup() %>%
+  ggplot(aes(date, log1p(value))) +
   theme_bw() +
   geom_point(aes(group = package, color = package), size = 1) +
   ggtitle(paste("Package Downloads: {healthyverse}")) +
@@ -73,6 +88,11 @@ ggplot(aes(date, log1p(value))) +
     , color = "red"
     , lwd = 1
     , lty = "solid"
+  ) +
+  geom_point(
+    shape = 21, size = 5, color = "red",
+    data  = last_values,
+    mapping = aes(x = date, y = log1p(value))
   ) +
   facet_wrap(package ~., ncol = 2, scales = "free_x") +
   theme_minimal() +
@@ -106,7 +126,7 @@ ts_downloads_tbl(
   geom_point(alpha = .2) +
   geom_vline(
     data = pkg_tbl
-    , aes(xintercept = as.numeric(date), color = package)
+    , aes(xintercept = date, color = package)
     , lwd = 1
     , lty = "solid"
   ) +
