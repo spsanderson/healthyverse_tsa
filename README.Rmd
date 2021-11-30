@@ -37,7 +37,7 @@ pkg_tbl <- readRDS("01_data/pkg_release_tbl.rds") %>%
 glimpse(downloads_tbl)
 ```
 
-The last day in the dataset is `r max_cran_datetime()`, the file was birthed on:
+The last day in the data set is `r max_cran_datetime()`, the file was birthed on:
 `r dl_birth_datetime()`, and at report knit time is `r hours_since_cran_log_update()` 
 hours old. `r update_log_message()`
 
@@ -54,6 +54,8 @@ likely not useful anyways, so we will drop them `c(r_version, r_arch, r_os)`
 data_tbl <- downloads_tbl %>%
     select(-r_version, -r_arch, -r_os)
 ```
+
+## Plots
 
 Now lets take a look at a time-series plot of the total daily downloads by package.
 We will use a log scale and place a vertical line at each version release for each
@@ -207,7 +209,7 @@ plot_acf_diagnostics(
 Now that we have our basic data and a shot of what it looks like, let's add some
 features to our data which can be very helpful in modeling. Lets start by making
 a `tibble` that is aggregated by the day and package, as we are going to be interested
-in forecasting the next 30 days for each package. First lets get our base data.
+in forecasting the next 4 weeks or 28 days for each package. First lets get our base data.
 
 ```{r base_data_frame, echo=FALSE}
 base_data <- ts_downloads_tbl(
@@ -219,9 +221,9 @@ base_data <- ts_downloads_tbl(
 
 Lets glimpse it: `r glimpse(base_data)`
 
-Now we are going to do some basic preprocessing.
+Now we are going to do some basic pre-processing.
 
-```{r preprocess}
+```{r preprocess, message=FALSE}
 data_padded_tbl <- base_data %>%
   pad_by_time(
     .date_var  = date,
@@ -229,16 +231,63 @@ data_padded_tbl <- base_data %>%
   )
 
 # Get log interval and standardization parameters
-log_params  <- liv(data_padded_tbl$value, limit_lower = 0, offset = 1)
+log_params  <- liv(data_padded_tbl$value, limit_lower = 0, offset = 1, silent = TRUE)
 limit_lower <- log_params$limit_lower
 limit_upper <- log_params$limit_upper
 offset      <- log_params$offset
-standard_params <- standard_vec(data_padded_tbl$value)
+standard_params <- standard_vec(data_padded_tbl$value, silent = TRUE)
 mean            <- standard_params$mean
 sd              <- standard_params$sd
   
-data_prepared_tbl <- data_padded_tbl %>%
+data_transformed_tbl <- data_padded_tbl %>%
   # Preprocess
   mutate(value_trans = liv(value, limit_lower = 0, offset = 1, silent = TRUE)$log_scaled) %>%
-  mutate(value_trans = standard_vec(value_trans, silent = TRUE)$standard_scaled)
+  mutate(value_trans = standard_vec(value_trans, silent = TRUE)$standard_scaled) %>%
+  select(-value)
+```
+
+Now that we have our full data set and saved our parameters we can create the full
+data set.
+
+```{r data_prepared_full_tbl}
+horizon <- 4*7
+lag_period <- 4*7
+rolling_periods <- c(7, 14, 28)
+
+data_prepared_full_tbl <- data_transformed_tbl %>%
+  group_by(package) %>%
+  
+  # Add future windows
+  bind_rows(
+    future_frame(., .date_var = date, .length_out = horizon)
+  ) %>%
+  
+  # Add autocorolated lags
+  tk_augment_lags(value_trans, .lags = lag_period) %>%
+  
+  # Add rolling features
+  tk_augment_slidify(
+    .value     = value_trans_lag28
+    , .f       = median
+    , .period  = rolling_periods
+    , .align   = "center"
+    , .partial = TRUE
+  ) %>%
+  
+  # Format columns
+  rename_with(.cols = contains("lag"), .fn = ~ str_c("lag_", .)) %>%
+  select(date, package, everything()) %>%
+  ungroup()
+
+data_prepared_full_tbl %>% 
+  group_by(package) %>% 
+  pivot_longer(-c(date, package)) %>% 
+  plot_time_series(
+    .date_var = date
+    , .value = value
+    , .color_var = name
+    , .smooth = FALSE
+    , .interactive = FALSE
+  ) +
+  theme_minimal()
 ```
