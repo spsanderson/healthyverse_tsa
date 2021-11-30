@@ -27,7 +27,8 @@ ts_downloads_tbl <- function(.data, .by_time = "day", ...){
             .date_var = date,
             .by       = .by_time,
             value     = n()
-        )
+        ) %>%
+        ungroup()
     
     return(data_tbl)
         
