@@ -341,3 +341,39 @@ wflw_prophet <- workflow() %>%
 
 wflw_prophet
 ```
+
+### XGBoost Regression
+We will use the `boost_tree` function
+
+```{r xgboost}
+rec_xgboost <- recipe(value_trans ~ date, extract_nested_test_split(nested_data_tbl)) %>%
+  step_timeseries_signature(date) %>%
+  step_rm(date) %>%
+  step_zv(all_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = TRUE)
+
+wflw_xgboost <- workflow() %>%
+  add_model(
+    boost_tree(
+      mode = "regression"
+    ) %>%
+      set_engine("xgboost")
+  ) %>%
+  add_recipe(rec_xgboost)
+
+wflw_xgboost
+```
+
+### Nested Modeltime Tables
+```{r nested_modeltime_tables}
+nested_modeltime_tbl <- modeltime_nested_fit(
+  # Nested Data
+  nested_data = nested_data_tbl,
+  
+  # Add workflows
+  wflw_prophet,
+  wflw_xgboost
+)
+
+nested_modeltime_tbl
+```
