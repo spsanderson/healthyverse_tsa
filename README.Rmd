@@ -383,7 +383,7 @@ nested_modeltime_tbl
 ```{r accuracy}
 nested_modeltime_tbl %>%
   extract_nested_test_accuracy() %>%
-  table_modeltime_accuracy(.interactive = F)
+  knitr::kable()
 ```
 
 ### Plot Models
