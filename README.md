@@ -99,7 +99,7 @@ version release for each package.
 
 Now lets take a look at some time series decomposition graphs.
 
-![](man/figures/README-ts_decomp_plt-1.png)<!-- -->![](man/figures/README-ts_decomp_plt-2.png)<!-- -->
+![](man/figures/README-ts_decomp_plt-1.png)<!-- -->![](man/figures/README-ts_decomp_plt-2.png)<!-- -->![](man/figures/README-ts_decomp_plt-3.png)<!-- -->
 
 ## Feature Engineering
 

@@ -172,6 +172,20 @@ plot_stl_diagnostics(
     title = "STL Diagnositcs: log1p(Values) - Monthly Aggregation"
   ) +
   theme_minimal()
+
+plot_seasonal_diagnostics(
+    .data = ts_downloads_tbl(
+    .data = data_tbl,
+    .by_time = "day"
+    ),
+  .date_var = date,
+  .value = log1p(value),
+  .interactive = FALSE
+) +
+  labs(
+    title = "Seasonal Diagnostics: log1p(Values)"
+  ) +
+  theme_minimal()
 ```
 
 ## Feature Engineering
