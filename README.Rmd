@@ -76,7 +76,7 @@ ts_downloads_tbl(
     .by_time = "day",
     package
 ) %>%
-  ungroup() %>%
+  filter(date >= subtract_time(md, "1 year")) %>%
   ggplot(aes(date, log1p(value))) +
   theme_bw() +
   geom_point(aes(group = package, color = package), size = 1) +
@@ -106,8 +106,7 @@ ts_downloads_tbl(
 
 ts_downloads_tbl(
     .data = data_tbl,
-    .by_time = "day",
-    package
+    .by_time = "day"
 ) %>%
   select(date, value) %>%
   summarise_by_time(
@@ -120,6 +119,7 @@ ts_downloads_tbl(
   rename(velocity = contains("_diff1")) %>%
   rename(acceleration = contains("_diff2")) %>%
   pivot_longer(-date) %>%
+  filter(date >= subtract_time(md, "1 year")) %>%
   mutate(name = str_to_title(name)) %>%
   mutate(name = as_factor(name)) %>%
   ggplot(aes(x = date, y = value, group = name)) +
@@ -141,3 +141,40 @@ ts_downloads_tbl(
   ) +
   theme(legend.position = "bottom")
 ```
+
+Now lets take a look at some time series decomposition graphs.
+
+```{r ts_decomp_plt, echo=FALSE}
+plot_stl_diagnostics(
+  .data = ts_downloads_tbl(
+    .data = data_tbl,
+    .by_time = "day"
+    ),
+  .date_var = date,
+  .value = log1p(value),
+  .interactive = FALSE
+) +
+  labs(
+    title = "STL Diagnositcs: log1p(Values) - Daily Aggregation"
+  ) +
+  theme_minimal()
+
+plot_stl_diagnostics(
+  .data = ts_downloads_tbl(
+    .data = data_tbl,
+    .by_time = "month"
+    ),
+  .date_var = date,
+  .value = log1p(value),
+  .interactive = FALSE
+) +
+  labs(
+    title = "STL Diagnositcs: log1p(Values) - Monthly Aggregation"
+  ) +
+  theme_minimal()
+```
+
+## Feature Engineering
+
+Now that we have our basic data and a shot of what it looks like, let's add some
+features to our data which can be very helpful in modeling.

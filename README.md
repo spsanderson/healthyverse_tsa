@@ -96,3 +96,12 @@ by package. We will use a log scale and place a vertical line at each
 version release for each package.
 
 ![](man/figures/README-initial_ts_plot-1.png)<!-- -->![](man/figures/README-initial_ts_plot-2.png)<!-- -->
+
+Now lets take a look at some time series decomposition graphs.
+
+![](man/figures/README-ts_decomp_plt-1.png)<!-- -->![](man/figures/README-ts_decomp_plt-2.png)<!-- -->
+
+## Feature Engineering
+
+Now that we have our basic data and a shot of what it looks like, let’s
+add some features to our data which can be very helpful in modeling.
