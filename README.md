@@ -185,3 +185,72 @@ data_prepared_full_tbl %>%
 ```
 
 ![](man/figures/README-data_prepared_full_tbl-1.png)<!-- -->
+
+Since this is panel data we can follow one of two different modeling
+strategies. We can search for a global model in the panel data or we can
+use nested forecasting finding the best model for each of the time
+series. Since we only have 5 panels, we will use nested forecasting.
+
+To do this we will use the `nest_timeseries` and
+`split_nested_timeseries` functions to create a nested `tibble`.
+
+``` r
+data_prepared_tbl <- data_prepared_full_tbl %>%
+  filter(!is.na(value_trans))
+
+forecast_tbl <- data_prepared_full_tbl %>%
+  filter(is.na(value_trans))
+
+nested_data_tbl <- data_prepared_tbl %>%
+  nest_timeseries(
+    .id_var = package
+    , .length_future = horizon
+  ) %>%
+  split_nested_timeseries(
+    .length_test = horizon
+  )
+```
+
+Now it is time to make some recipes and models using the modeltime
+workflow.
+
+## Modeltime Workflow
+
+### Prophet Regression
+
+We will first make a `progphet_reg`
+
+``` r
+rec_prophet <- recipe(value_trans ~ date, extract_nested_test_split(nested_data_tbl))
+
+wflw_prophet <- workflow() %>%
+  add_model(
+    prophet_reg(
+      mode = "regression",
+      seasonality_yearly = "auto",
+      seasonality_weekly = "auto",
+      seasonality_daily  = "auto"
+    ) %>%
+      set_engine("prophet")
+  ) %>%
+  add_recipe(rec_prophet)
+
+wflw_prophet
+```
+
+    ## == Workflow ====================================================================
+    ## Preprocessor: Recipe
+    ## Model: prophet_reg()
+    ## 
+    ## -- Preprocessor ----------------------------------------------------------------
+    ## 0 Recipe Steps
+    ## 
+    ## -- Model -----------------------------------------------------------------------
+    ## PROPHET Regression Model Specification (regression)
+    ## 
+    ## Main Arguments:
+    ##   seasonality_yearly = auto
+    ##   seasonality_weekly = auto
+    ##   seasonality_daily = auto
+    ## 
+    ## Computational engine: prophet
