@@ -113,7 +113,7 @@ ts_downloads_tbl(
   summarise_by_time(
     .date_var = date,
     .by = "day",
-    Actual = sum(value, na.rm = TRUE)
+    Actual = log1p(sum(value, na.rm = TRUE))
   ) %>%
   tk_augment_differences(.value = Actual, .differences = 1) %>%
   tk_augment_differences(.value = Actual, .differences = 2) %>%
@@ -136,7 +136,7 @@ ts_downloads_tbl(
     title = "Total Downloads: Trend, Velocity, and Accelertion",
     subtitle = "Vertical Lines Indicate a CRAN Release date for a package.",
     x = "Date",
-    y = "",
+    y = "log1p(Values)",
     color = ""
   ) +
   theme(legend.position = "bottom")
