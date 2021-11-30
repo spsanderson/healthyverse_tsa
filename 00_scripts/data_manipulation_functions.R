@@ -106,3 +106,62 @@ auto_limit_upper <- function(limit_upper, max_x, range_x) {
     }
     return(limit_upper)
 }
+
+standard_vec <- function(x, mean = NULL, sd = NULL, silent = FALSE) {
+    
+    if (!is.numeric(x)) rlang::abort("Non-numeric data detected. 'x' must be numeric.")
+    
+    m <- mean
+    s <- sd
+    
+    if (is.null(mean)) {
+        m <- mean(x, na.rm = T)
+    }
+    if (is.null(sd)) {
+        s <- stats::sd(x, na.rm = T)
+    }
+    
+    if (!silent) {
+        if (is.null(mean)) {
+            if (is.null(sd)) {
+                message(stringr::str_glue("Standardization Parameters
+                                  mean: {m}
+                                  standard deviation: {s}"))
+            }
+        }
+    }
+    
+    sv <- (x - m) / s
+    
+    out_list <- list(
+        mean            = m,
+        sd              = s,
+        standard_scaled = sv
+    )
+    
+    return(out_list)
+    
+}
+
+standard_inv_vec <- function(x, mean, sd) {
+    
+    if (!is.numeric(x)) rlang::abort("Non-numeric data detected. 'x' must be numeric.")
+    
+    if (rlang::is_missing(mean)) {
+        rlang::abort("`mean` is missing with no default.")
+    }
+    if (rlang::is_missing(sd)) {
+        rlang::abort("`sd` is missing with no default.")
+    }
+    
+    si <- (x * sd) + mean
+    
+    out_list <- list(
+        mean                   = mean,
+        sd                     = sd,
+        standard_inverse_value = si
+    )
+    
+    return(out_list)
+    
+}
