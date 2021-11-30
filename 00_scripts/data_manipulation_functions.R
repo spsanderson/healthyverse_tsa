@@ -89,7 +89,7 @@ liiv <- function(x, limit_lower, limit_upper, offset = 0) {
     out_list <- list(
         limit_lower = a,
         limit_upper = b,
-        
+        rescaled_v  = v
     )
 }
 
