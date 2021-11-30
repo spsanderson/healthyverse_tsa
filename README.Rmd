@@ -301,7 +301,13 @@ To do this we will use the `nest_timeseries` and `split_nested_timeseries` funct
 to create a nested `tibble`.
 
 ```{r nested_data}
-nested_data_tbl <- data_prepared_full_tbl %>%
+data_prepared_tbl <- data_prepared_full_tbl %>%
+  filter(!is.na(value_trans))
+
+forecast_tbl <- data_prepared_full_tbl %>%
+  filter(is.na(value_trans))
+
+nested_data_tbl <- data_prepared_tbl %>%
   nest_timeseries(
     .id_var = package
     , .length_future = horizon
