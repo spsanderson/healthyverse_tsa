@@ -186,6 +186,20 @@ plot_seasonal_diagnostics(
     title = "Seasonal Diagnostics: log1p(Values)"
   ) +
   theme_minimal()
+
+plot_acf_diagnostics(
+      .data = ts_downloads_tbl(
+    .data = data_tbl,
+    .by_time = "day"
+    ),
+  .date_var = date,
+  .value = log1p(value),
+  .interactive = FALSE
+) +
+  labs(
+    title = "Lag Diagnostics: log1p(Values)"
+  ) +
+  theme_minimal()
 ```
 
 ## Feature Engineering
