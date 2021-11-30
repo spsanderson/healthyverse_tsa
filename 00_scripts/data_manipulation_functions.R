@@ -33,3 +33,76 @@ ts_downloads_tbl <- function(.data, .by_time = "day", ...){
     return(data_tbl)
         
 }
+
+liv <- function(x, limit_lower = "auto", limit_upper = "auto", offset = 0, silent = FALSE) {
+    
+    if (!is.numeric(x)) rlang::abort("Non-numeric data detected. 'x' must be numeric.")
+    
+    x <- x + offset
+    if (any(x <= 0)) rlang::abort("x <= 0: Try using an offset to avoid values less than or equal to zero.")
+    
+    max_x   <- max(x)
+    min_x   <- min(x)
+    range_x <- abs(max_x - min_x)
+    
+    # Convert character strings to numeric
+    limit_lower <- auto_limit_lower(limit_lower, min_x, range_x)
+    limit_upper <- auto_limit_upper(limit_upper, max_x, range_x)
+    
+    # Checks
+    if (any(is.na(x))) rlang::abort("Missing values detected. Try replacing missing values.")
+    if (limit_upper <= max_x) rlang::abort("limit_upper <= max(x): This results in NaN. Try increasing limit_upper to a value greater than or equal to max(x).")
+    if (limit_lower >= min_x) rlang::abort("limit_lower >= min(x): This results in NaN. Try decreasing limit_lower to a value less than or equal to min(x).")
+    
+    # Message
+    if (!silent) message("log_interval_vec(): \n Using limit_lower: ", limit_lower, "\n Using limit_upper: ", limit_upper, "\n Using offset: ", offset)
+    
+    scaled <- (x - limit_lower) / (limit_upper - x)
+    ls     <- log(scaled)
+    
+    out_list <- list(
+        limit_lower = limit_lower,
+        limit_upper = limit_upper,
+        offset      = offset,
+        log_scaled  = ls
+    )
+    
+    return(out_list)
+}
+
+liiv <- function(x, limit_lower, limit_upper, offset = 0) {
+    
+    if (!is.numeric(x)) rlang::abort("Non-numeric data detected. 'x' must be numeric.")
+    
+    if (rlang::is_missing(limit_lower)) {
+        rlang::abort("log_interval_inv_vec(limit_lower): Is missing. Please provide a value.")
+    }
+    if (rlang::is_missing(limit_upper)) {
+        rlang::abort("log_interval_inv_vec(limit_upper): Is missing. Please provide a value.")
+    }
+    
+    a <- limit_lower
+    b <- limit_upper
+    
+    v <- (b-a)*(exp(x)) / (1 + exp(x)) + a - offset
+    
+    out_list <- list(
+        limit_lower = a,
+        limit_upper = b,
+        
+    )
+}
+
+auto_limit_lower <- function(limit_lower, min_x, range_x) {
+    if (limit_lower == "auto") {
+        limit_lower <- 0
+    }
+    return(limit_lower)
+}
+
+auto_limit_upper <- function(limit_upper, max_x, range_x) {
+    if (limit_upper == "auto") {
+        limit_upper <- max_x + (0.1 * range_x)
+    }
+    return(limit_upper)
+}
