@@ -316,3 +316,28 @@ nested_data_tbl <- data_prepared_tbl %>%
     .length_test = horizon
   )
 ```
+
+Now it is time to make some recipes and models using the modeltime workflow.
+
+## Modeltime Workflow
+
+### Prophet Regression
+We will first make a `progphet_reg` 
+
+```{r propht_reg}
+rec_prophet <- recipe(value_trans ~ date, extract_nested_test_split(nested_data_tbl))
+
+wflw_prophet <- workflow() %>%
+  add_model(
+    prophet_reg(
+      mode = "regression",
+      seasonality_yearly = "auto",
+      seasonality_weekly = "auto",
+      seasonality_daily  = "auto"
+    ) %>%
+      set_engine("prophet")
+  ) %>%
+  add_recipe(rec_prophet)
+
+wflw_prophet
+```
