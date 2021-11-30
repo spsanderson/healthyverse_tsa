@@ -289,7 +289,8 @@ data_prepared_full_tbl %>%
     , .smooth = FALSE
     , .interactive = FALSE
   ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(legend.position = "bottom")
 ```
 
 Since this is panel data we can follow one of two different modeling strategies. 
@@ -376,4 +377,60 @@ nested_modeltime_tbl <- modeltime_nested_fit(
 )
 
 nested_modeltime_tbl
+```
+
+### Model Accuracy
+```{r accuracy}
+nested_modeltime_tbl %>%
+  extract_nested_test_accuracy() %>%
+  table_modeltime_accuracy(.interactive = F)
+```
+
+### Plot Models
+```{r model_plot}
+nested_modeltime_tbl %>%
+  extract_nested_test_forecast() %>%
+  group_by(package) %>%
+  plot_modeltime_forecast(
+    .interactive = FALSE,
+    .conf_interval_alpha = .2
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+### Best Model
+```{r best_model}
+best_nested_modeltime_tbl <- nested_modeltime_tbl %>%
+  modeltime_nested_select_best(
+    metric = "rmse",
+    minimize = TRUE,
+    filter_test_forecasts = TRUE
+  )
+
+best_nested_modeltime_tbl %>%
+  extract_nested_best_model_report()
+
+best_nested_modeltime_tbl %>%
+  extract_nested_test_forecast() %>%
+  group_by(package) %>%
+  plot_modeltime_forecast(
+    .interactive = FALSE,
+    .conf_interval_alpha = 0.2
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+## Refitting and Future Forecast
+
+Now that we have the best models, we can make our future forecasts.
+
+```{r refit}
+nested_modeltime_refit_tbl <- best_nested_modeltime_tbl %>%
+  modeltime_nested_refit(
+    control = control_nested_refit(verbose = TRUE)
+  )
+
+nested_modeltime_refit_tbl
 ```
