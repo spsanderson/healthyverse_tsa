@@ -121,27 +121,32 @@ data_padded_tbl <- base_data %>%
   )
 
 # Get log interval and standardization parameters
-# log_params  <- liv(data_padded_tbl$value, limit_lower = 0, offset = 1, silent = TRUE)
-# limit_lower <- log_params$limit_lower
-# limit_upper <- log_params$limit_upper
-# offset      <- log_params$offset
-# standard_params <- standard_vec(data_padded_tbl$value, silent = TRUE)
-# mean            <- standard_params$mean
-# sd              <- standard_params$sd
-  
-data_transformed_tbl <- data_padded_tbl 
-  # Preprocess
-  # mutate(value_trans = liv(value, limit_lower = 0, offset = 1, silent = TRUE)$log_scaled) %>%
-  # mutate(value_trans = standard_vec(value_trans, silent = TRUE)$standard_scaled) %>%
-  # select(-value)
+log_params  <- liv(data_padded_tbl$value, limit_lower = 0, offset = 1, silent = TRUE)
+limit_lower <- log_params$limit_lower
+limit_upper <- log_params$limit_upper
+offset      <- log_params$offset
+
+data_liv_tbl <- data_padded_tbl %>%
+  # Get log interval transform
+  mutate(value_trans = liv(value, limit_lower = 0, offset = 1, silent = TRUE)$log_scaled)
+
+# Get Standardization Params
+std_params <- standard_vec(data_liv_tbl$value_trans, silent = TRUE)
+std_mean   <- std_params$mean
+std_sd     <- std_params$sd
+
+data_transformed_tbl <- data_liv_tbl %>%
+  # get standardization
+  mutate(value_trans = standard_vec(value_trans, silent = TRUE)$standard_scaled) %>%
+  select(-value)
 ```
 
 Now that we have our full data set and saved our parameters we can
 create the full data set.
 
 ``` r
-horizon <- 4*7
-lag_period <- 4*7
+horizon         <- 4*7
+lag_period      <- 4*7
 rolling_periods <- c(7, 14, 28)
 
 data_prepared_full_tbl <- data_transformed_tbl %>%
@@ -153,11 +158,11 @@ data_prepared_full_tbl <- data_transformed_tbl %>%
   ) %>%
   
   # Add autocorolated lags
-  tk_augment_lags(value, .lags = lag_period) %>%
+  tk_augment_lags(value_trans, .lags = lag_period) %>%
   
   # Add rolling features
   tk_augment_slidify(
-    .value     = value_lag28
+    .value     = value_trans_lag28
     , .f       = median
     , .period  = rolling_periods
     , .align   = "center"
@@ -195,10 +200,10 @@ To do this we will use the `nest_timeseries` and
 
 ``` r
 data_prepared_tbl <- data_prepared_full_tbl %>%
-  filter(!is.na(value))
+  filter(!is.na(value_trans))
 
 forecast_tbl <- data_prepared_full_tbl %>%
-  filter(is.na(value))
+  filter(is.na(value_trans))
 
 nested_data_tbl <- data_prepared_tbl %>%
   nest_timeseries(
@@ -220,7 +225,7 @@ workflow.
 We will first make a `progphet_reg`
 
 ``` r
-rec_prophet <- recipe(value ~ date, extract_nested_test_split(nested_data_tbl))
+rec_prophet <- recipe(value_trans ~ date, extract_nested_test_split(nested_data_tbl))
 
 wflw_prophet <- workflow() %>%
   add_model(
@@ -259,7 +264,7 @@ wflw_prophet
 We will use the `boost_tree` function
 
 ``` r
-rec_xgboost <- recipe(value ~ date, extract_nested_test_split(nested_data_tbl)) %>%
+rec_xgboost <- recipe(value_trans ~ date, extract_nested_test_split(nested_data_tbl)) %>%
   step_timeseries_signature(date) %>%
   step_rm(date) %>%
   step_zv(all_predictors()) %>%
@@ -327,18 +332,18 @@ nested_modeltime_tbl %>%
   knitr::kable()
 ```
 
-| package       | .model\_id | .model\_desc | .type |       mae |      mape |      mase |    smape |     rmse |       rsq |
-|:--------------|-----------:|:-------------|:------|----------:|----------:|----------:|---------:|---------:|----------:|
-| healthyR.data |          1 | PROPHET      | Test  | 12.489576 |  82.04223 | 0.6472525 | 58.57958 | 20.91241 | 0.0714100 |
-| healthyR.data |          2 | XGBOOST      | Test  | 13.412833 |  92.58679 | 0.6950988 | 63.15077 | 22.08235 | 0.0510638 |
-| healthyR      |          1 | PROPHET      | Test  |  9.128685 |  77.38898 | 0.6982280 | 50.60809 | 14.65150 | 0.2884610 |
-| healthyR      |          2 | XGBOOST      | Test  | 13.480019 | 155.73124 | 1.0310496 | 65.32796 | 18.36355 | 0.0567535 |
-| healthyR.ts   |          1 | PROPHET      | Test  |  9.356163 |  84.18779 | 0.7197049 | 57.91179 | 15.04559 | 0.1893973 |
-| healthyR.ts   |          2 | XGBOOST      | Test  | 10.142703 | 127.57374 | 0.7802079 | 59.79400 | 15.75616 | 0.0087428 |
-| healthyverse  |          1 | PROPHET      | Test  |  9.782299 |  95.10512 | 0.7157779 | 63.38454 | 15.57801 | 0.1710717 |
-| healthyverse  |          2 | XGBOOST      | Test  |  9.223872 | 105.88629 | 0.6749175 | 59.21704 | 14.96783 | 0.1000746 |
-| healthyR.ai   |          1 | PROPHET      | Test  |  9.688236 |  75.27081 | 0.7950832 | 60.13260 | 15.63372 | 0.0496510 |
-| healthyR.ai   |          2 | XGBOOST      | Test  |  9.105923 |  82.74034 | 0.7472946 | 51.99810 | 15.07371 | 0.0570836 |
+| package       | .model\_id | .model\_desc | .type |       mae |     mape |      mase |    smape |      rmse |       rsq |
+|:--------------|-----------:|:-------------|:------|----------:|---------:|----------:|---------:|----------:|----------:|
+| healthyR.data |          1 | PROPHET      | Test  | 1.0256551 | 117.6440 | 0.6886868 | 175.9876 | 1.3104384 | 0.0608156 |
+| healthyR.data |          2 | XGBOOST      | Test  | 1.0193596 | 136.7383 | 0.6844596 | 143.9583 | 1.3516689 | 0.0157355 |
+| healthyR      |          1 | PROPHET      | Test  | 0.7468631 | 119.8778 | 0.6525688 | 141.6527 | 0.9730022 | 0.2623412 |
+| healthyR      |          2 | XGBOOST      | Test  | 0.7880067 | 161.6014 | 0.6885179 | 133.9051 | 1.0266100 | 0.0911755 |
+| healthyR.ts   |          1 | PROPHET      | Test  | 0.9367680 | 237.5801 | 0.7346477 | 141.1282 | 1.1418993 | 0.1790715 |
+| healthyR.ts   |          2 | XGBOOST      | Test  | 0.7877818 | 155.9182 | 0.6178073 | 123.1358 | 0.9989873 | 0.2381088 |
+| healthyverse  |          1 | PROPHET      | Test  | 1.0504649 | 252.0676 | 0.7609777 | 146.0998 | 1.2590513 | 0.1106670 |
+| healthyverse  |          2 | XGBOOST      | Test  | 0.9326322 | 188.3235 | 0.6756173 | 143.4391 | 1.1798073 | 0.0312511 |
+| healthyR.ai   |          1 | PROPHET      | Test  | 0.8365248 | 252.6210 | 0.7473182 | 135.8875 | 1.0394502 | 0.0975070 |
+| healthyR.ai   |          2 | XGBOOST      | Test  | 0.7343141 | 181.1843 | 0.6560072 | 127.5401 | 0.9764895 | 0.1535989 |
 
 ### Plot Models
 
@@ -374,11 +379,11 @@ best_nested_modeltime_tbl %>%
     ##   # A tibble: 5 x 10
     ##   package       .model_id .model_desc .type   mae  mape  mase smape  rmse    rsq
     ##   <chr>             <int> <chr>       <chr> <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl>
-    ## 1 healthyR.data         1 PROPHET     Test  12.5   82.0 0.647  58.6  20.9 0.0714
-    ## 2 healthyR              1 PROPHET     Test   9.13  77.4 0.698  50.6  14.7 0.288 
-    ## 3 healthyR.ts           1 PROPHET     Test   9.36  84.2 0.720  57.9  15.0 0.189 
-    ## 4 healthyverse          2 XGBOOST     Test   9.22 106.  0.675  59.2  15.0 0.100 
-    ## 5 healthyR.ai           2 XGBOOST     Test   9.11  82.7 0.747  52.0  15.1 0.0571
+    ## 1 healthyR.data         1 PROPHET     Test  1.03   118. 0.689  176. 1.31  0.0608
+    ## 2 healthyR              1 PROPHET     Test  0.747  120. 0.653  142. 0.973 0.262 
+    ## 3 healthyR.ts           2 XGBOOST     Test  0.788  156. 0.618  123. 0.999 0.238 
+    ## 4 healthyverse          2 XGBOOST     Test  0.933  188. 0.676  143. 1.18  0.0313
+    ## 5 healthyR.ai           2 XGBOOST     Test  0.734  181. 0.656  128. 0.976 0.154
 
 ``` r
 best_nested_modeltime_tbl %>%
@@ -422,17 +427,17 @@ nested_modeltime_refit_tbl
 ``` r
 nested_modeltime_refit_tbl %>%
   extract_nested_future_forecast() %>%
-  # mutate(across(.value:.conf_hi, .fns = ~ standard_inv_vec(
-  #   x    = .,
-  #   mean = mean,
-  #   sd   = sd
-  # )$standard_inverse_value)) %>%
-  # mutate(across(.value:.conf_hi, .fns = ~ liiv(
-  #   x = .,
-  #   limit_lower = limit_lower,
-  #   limit_upper = limit_upper,
-  #   offset      = offset
-  # )$rescaled_v)) %>%
+  mutate(across(.value:.conf_hi, .fns = ~ standard_inv_vec(
+    x    = .,
+    mean = std_mean,
+    sd   = std_sd
+  )$standard_inverse_value)) %>%
+  mutate(across(.value:.conf_hi, .fns = ~ liiv(
+    x = .,
+    limit_lower = limit_lower,
+    limit_upper = limit_upper,
+    offset      = offset
+  )$rescaled_v)) %>%
   group_by(package) %>%
   plot_modeltime_forecast(
     .interactive = FALSE,

@@ -229,27 +229,32 @@ data_padded_tbl <- base_data %>%
   )
 
 # Get log interval and standardization parameters
-# log_params  <- liv(data_padded_tbl$value, limit_lower = 0, offset = 1, silent = TRUE)
-# limit_lower <- log_params$limit_lower
-# limit_upper <- log_params$limit_upper
-# offset      <- log_params$offset
-# standard_params <- standard_vec(data_padded_tbl$value, silent = TRUE)
-# mean            <- standard_params$mean
-# sd              <- standard_params$sd
-  
-data_transformed_tbl <- data_padded_tbl 
-  # Preprocess
-  # mutate(value_trans = liv(value, limit_lower = 0, offset = 1, silent = TRUE)$log_scaled) %>%
-  # mutate(value_trans = standard_vec(value_trans, silent = TRUE)$standard_scaled) %>%
-  # select(-value)
+log_params  <- liv(data_padded_tbl$value, limit_lower = 0, offset = 1, silent = TRUE)
+limit_lower <- log_params$limit_lower
+limit_upper <- log_params$limit_upper
+offset      <- log_params$offset
+
+data_liv_tbl <- data_padded_tbl %>%
+  # Get log interval transform
+  mutate(value_trans = liv(value, limit_lower = 0, offset = 1, silent = TRUE)$log_scaled)
+
+# Get Standardization Params
+std_params <- standard_vec(data_liv_tbl$value_trans, silent = TRUE)
+std_mean   <- std_params$mean
+std_sd     <- std_params$sd
+
+data_transformed_tbl <- data_liv_tbl %>%
+  # get standardization
+  mutate(value_trans = standard_vec(value_trans, silent = TRUE)$standard_scaled) %>%
+  select(-value)
 ```
 
 Now that we have our full data set and saved our parameters we can create the full
 data set.
 
 ```{r data_prepared_full_tbl}
-horizon <- 4*7
-lag_period <- 4*7
+horizon         <- 4*7
+lag_period      <- 4*7
 rolling_periods <- c(7, 14, 28)
 
 data_prepared_full_tbl <- data_transformed_tbl %>%
@@ -261,11 +266,11 @@ data_prepared_full_tbl <- data_transformed_tbl %>%
   ) %>%
   
   # Add autocorolated lags
-  tk_augment_lags(value, .lags = lag_period) %>%
+  tk_augment_lags(value_trans, .lags = lag_period) %>%
   
   # Add rolling features
   tk_augment_slidify(
-    .value     = value_lag28
+    .value     = value_trans_lag28
     , .f       = median
     , .period  = rolling_periods
     , .align   = "center"
@@ -301,10 +306,10 @@ to create a nested `tibble`.
 
 ```{r nested_data}
 data_prepared_tbl <- data_prepared_full_tbl %>%
-  filter(!is.na(value))
+  filter(!is.na(value_trans))
 
 forecast_tbl <- data_prepared_full_tbl %>%
-  filter(is.na(value))
+  filter(is.na(value_trans))
 
 nested_data_tbl <- data_prepared_tbl %>%
   nest_timeseries(
@@ -324,7 +329,7 @@ Now it is time to make some recipes and models using the modeltime workflow.
 We will first make a `progphet_reg` 
 
 ```{r propht_reg}
-rec_prophet <- recipe(value ~ date, extract_nested_test_split(nested_data_tbl))
+rec_prophet <- recipe(value_trans ~ date, extract_nested_test_split(nested_data_tbl))
 
 wflw_prophet <- workflow() %>%
   add_model(
@@ -345,7 +350,7 @@ wflw_prophet
 We will use the `boost_tree` function
 
 ```{r xgboost}
-rec_xgboost <- recipe(value ~ date, extract_nested_test_split(nested_data_tbl)) %>%
+rec_xgboost <- recipe(value_trans ~ date, extract_nested_test_split(nested_data_tbl)) %>%
   step_timeseries_signature(date) %>%
   step_rm(date) %>%
   step_zv(all_predictors()) %>%
@@ -434,17 +439,17 @@ nested_modeltime_refit_tbl
 
 nested_modeltime_refit_tbl %>%
   extract_nested_future_forecast() %>%
-  # mutate(across(.value:.conf_hi, .fns = ~ standard_inv_vec(
-  #   x    = .,
-  #   mean = mean,
-  #   sd   = sd
-  # )$standard_inverse_value)) %>%
-  # mutate(across(.value:.conf_hi, .fns = ~ liiv(
-  #   x = .,
-  #   limit_lower = limit_lower,
-  #   limit_upper = limit_upper,
-  #   offset      = offset
-  # )$rescaled_v)) %>%
+  mutate(across(.value:.conf_hi, .fns = ~ standard_inv_vec(
+    x    = .,
+    mean = std_mean,
+    sd   = std_sd
+  )$standard_inverse_value)) %>%
+  mutate(across(.value:.conf_hi, .fns = ~ liiv(
+    x = .,
+    limit_lower = limit_lower,
+    limit_upper = limit_upper,
+    offset      = offset
+  )$rescaled_v)) %>%
   group_by(package) %>%
   plot_modeltime_forecast(
     .interactive = FALSE,
