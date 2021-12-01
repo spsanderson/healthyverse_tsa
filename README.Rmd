@@ -219,8 +219,6 @@ base_data <- ts_downloads_tbl(
 )
 ```
 
-Lets glimpse it: `r glimpse(base_data)`
-
 Now we are going to do some basic pre-processing.
 
 ```{r preprocess, message=FALSE}
