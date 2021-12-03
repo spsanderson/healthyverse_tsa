@@ -1,0 +1,2 @@
+- name: Github action for rmarkdown
+  uses: lucharo/rmarkdown-action@v1
