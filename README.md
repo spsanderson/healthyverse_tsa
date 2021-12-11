@@ -1,7 +1,7 @@
 Time Series Analysis and Modeling of the Healthyverse Packages
 ================
 Steven P. Sanderson II, MPH - Data Scientist/IT Manager
-10 December, 2021
+11 December, 2021
 
 ## Get Data
 
@@ -9,7 +9,7 @@ Steven P. Sanderson II, MPH - Data Scientist/IT Manager
 glimpse(downloads_tbl)
 ```
 
-    ## Rows: 24,473
+    ## Rows: 24,642
     ## Columns: 11
     ## $ date      <date> 2020-11-23, 2020-11-23, 2020-11-23, 2020-11-23, 2020-11-23,~
     ## $ time      <Period> 15H 36M 55S, 11H 26M 39S, 23H 34M 44S, 18H 39M 32S, 9H 0M~
@@ -23,9 +23,9 @@ glimpse(downloads_tbl)
     ## $ country   <chr> "US", "US", "US", "GB", "US", "US", "DE", "HK", "JP", "US", ~
     ## $ ip_id     <int> 2069, 2804, 78827, 27595, 90474, 90474, 42435, 74, 7655, 638~
 
-The last day in the data set is 2021-12-08 23:02:24, the file was
-birthed on: 2021-11-29 11:38:26, and at report knit time is -222.4 hours
-old. Happy analyzing!
+The last day in the data set is 2021-12-09 23:32:55, the file was
+birthed on: 2021-11-29 11:38:26, and at report knit time is -246.91
+hours old. Happy analyzing!
 
 Now that we have our data lets take a look at it using the `skimr`
 package.
@@ -37,7 +37,7 @@ skim(downloads_tbl)
 |                                                  |                |
 |:-------------------------------------------------|:---------------|
 | Name                                             | downloads\_tbl |
-| Number of rows                                   | 24473          |
+| Number of rows                                   | 24642          |
 | Number of columns                                | 11             |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   |                |
 | Column type frequency:                           |                |
@@ -55,37 +55,37 @@ Data summary
 
 | skim\_variable | n\_missing | complete\_rate | min | max | empty | n\_unique | whitespace |
 |:---------------|-----------:|---------------:|----:|----:|------:|----------:|-----------:|
-| r\_version     |      16433 |           0.33 |   5 |   5 |     0 |        29 |          0 |
-| r\_arch        |      16433 |           0.33 |   3 |   7 |     0 |         5 |          0 |
-| r\_os          |      16433 |           0.33 |   7 |  15 |     0 |         9 |          0 |
+| r\_version     |      16535 |           0.33 |   5 |   5 |     0 |        29 |          0 |
+| r\_arch        |      16535 |           0.33 |   3 |   7 |     0 |         5 |          0 |
+| r\_os          |      16535 |           0.33 |   7 |  15 |     0 |         9 |          0 |
 | package        |          0 |           1.00 |   8 |  13 |     0 |         5 |          0 |
 | version        |          0 |           1.00 |   5 |   5 |     0 |        13 |          0 |
-| country        |       2065 |           0.92 |   2 |   2 |     0 |        98 |          0 |
+| country        |       2066 |           0.92 |   2 |   2 |     0 |        98 |          0 |
 
 **Variable type: Date**
 
 | skim\_variable | n\_missing | complete\_rate | min        | max        | median     | n\_unique |
 |:---------------|-----------:|---------------:|:-----------|:-----------|:-----------|----------:|
-| date           |          0 |              1 | 2020-11-23 | 2021-12-08 | 2021-07-23 |       381 |
+| date           |          0 |              1 | 2020-11-23 | 2021-12-09 | 2021-07-25 |       382 |
 
 **Variable type: numeric**
 
-| skim\_variable | n\_missing | complete\_rate |       mean |         sd |  p0 |   p25 |    p50 |     p75 |    p100 | hist  |
-|:---------------|-----------:|---------------:|-----------:|-----------:|----:|------:|-------:|--------:|--------:|:------|
-| size           |          0 |              1 | 1530949.90 | 1877908.72 | 357 | 27381 | 238433 | 3245527 | 5677952 | ▇▁▂▂▁ |
-| ip\_id         |          0 |              1 |    8113.21 |   15172.76 |   1 |   216 |   2964 |    8506 |  143633 | ▇▁▁▁▁ |
+| skim\_variable | n\_missing | complete\_rate |      mean |         sd |  p0 |      p25 |    p50 |     p75 |    p100 | hist  |
+|:---------------|-----------:|---------------:|----------:|-----------:|----:|---------:|-------:|--------:|--------:|:------|
+| size           |          0 |              1 | 1531055.9 | 1878371.40 | 357 | 26285.00 | 238425 | 3245646 | 5677952 | ▇▁▂▂▁ |
+| ip\_id         |          0 |              1 |    8096.8 |   15178.25 |   1 |   211.25 |   2989 |    8369 |  143633 | ▇▁▁▁▁ |
 
 **Variable type: POSIXct**
 
 | skim\_variable | n\_missing | complete\_rate | min                 | max                 | median              | n\_unique |
 |:---------------|-----------:|---------------:|:--------------------|:--------------------|:--------------------|----------:|
-| date\_time     |          0 |              1 | 2020-11-23 09:00:41 | 2021-12-08 23:02:24 | 2021-07-23 08:55:11 |     14288 |
+| date\_time     |          0 |              1 | 2020-11-23 09:00:41 | 2021-12-09 23:32:55 | 2021-07-25 19:30:40 |     14379 |
 
 **Variable type: Timespan**
 
-| skim\_variable | n\_missing | complete\_rate | min | max |     median | n\_unique |
-|:---------------|-----------:|---------------:|----:|----:|-----------:|----------:|
-| time           |          0 |              1 |   0 |  59 | 10H 46M 8S |        60 |
+| skim\_variable | n\_missing | complete\_rate | min | max | median | n\_unique |
+|:---------------|-----------:|---------------:|----:|----:|-------:|----------:|
+| time           |          0 |              1 |   0 |  59 |      2 |        60 |
 
 We can see that the following columns are missing a lot of data and for
 us are most likely not useful anyways, so we will drop them
@@ -318,11 +318,11 @@ nested_modeltime_tbl
     ##   # A tibble: 5 x 5
     ##   package       .actual_data       .future_data      .splits   .modeltime_tables
     ##   <chr>         <list>             <list>            <list>    <list>           
-    ## 1 healthyR.data <tibble [352 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [2~
-    ## 2 healthyR      <tibble [342 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [2~
-    ## 3 healthyR.ts   <tibble [293 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [2~
-    ## 4 healthyverse  <tibble [267 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [2~
-    ## 5 healthyR.ai   <tibble [82 x 6]>  <tibble [28 x 6]> <split [~ <mdl_time_tbl [2~
+    ## 1 healthyR.data <tibble [353 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [2~
+    ## 2 healthyR      <tibble [343 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [2~
+    ## 3 healthyR.ts   <tibble [294 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [2~
+    ## 4 healthyverse  <tibble [268 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [2~
+    ## 5 healthyR.ai   <tibble [83 x 6]>  <tibble [28 x 6]> <split [~ <mdl_time_tbl [2~
 
 ### Model Accuracy
 
@@ -332,18 +332,18 @@ nested_modeltime_tbl %>%
   knitr::kable()
 ```
 
-| package       | .model\_id | .model\_desc | .type |      mae |      mape |      mase |    smape |     rmse |       rsq |
-|:--------------|-----------:|:-------------|:------|---------:|----------:|----------:|---------:|---------:|----------:|
-| healthyR.data |          1 | PROPHET      | Test  | 1.460894 | 113.13870 | 1.0415608 | 185.4895 | 1.883926 | 0.0657246 |
-| healthyR.data |          2 | XGBOOST      | Test  | 1.275893 |  91.87174 | 0.9096625 | 134.8011 | 1.716284 | 0.0381905 |
-| healthyR      |          1 | PROPHET      | Test  | 1.104896 | 101.03353 | 1.0433909 | 155.9029 | 1.371647 | 0.2637041 |
-| healthyR      |          2 | XGBOOST      | Test  | 1.156668 | 116.78698 | 1.0922809 | 151.5145 | 1.393115 | 0.1320895 |
-| healthyR.ts   |          1 | PROPHET      | Test  | 1.462164 | 172.45913 | 1.2533260 | 161.5404 | 1.781019 | 0.1512074 |
-| healthyR.ts   |          2 | XGBOOST      | Test  | 1.408708 | 194.25066 | 1.2075056 | 156.9259 | 1.752888 | 0.0770762 |
-| healthyverse  |          1 | PROPHET      | Test  | 1.417439 | 199.28812 | 1.1879075 | 163.6270 | 1.678969 | 0.1239180 |
-| healthyverse  |          2 | XGBOOST      | Test  | 1.362036 | 225.26044 | 1.1414759 | 159.8190 | 1.616082 | 0.0807587 |
-| healthyR.ai   |          1 | PROPHET      | Test  | 1.127342 | 180.39004 | 1.0752331 | 142.7986 | 1.380167 | 0.1108936 |
-| healthyR.ai   |          2 | XGBOOST      | Test  | 1.141821 | 148.29170 | 1.0890430 | 141.9083 | 1.451120 | 0.0467799 |
+| package       | .model\_id | .model\_desc | .type |      mae |     mape |     mase |    smape |     rmse |       rsq |
+|:--------------|-----------:|:-------------|:------|---------:|---------:|---------:|---------:|---------:|----------:|
+| healthyR.data |          1 | PROPHET      | Test  | 1.507113 | 115.4284 | 1.035631 | 186.6270 | 1.927133 | 0.0569534 |
+| healthyR.data |          2 | XGBOOST      | Test  | 1.919851 | 186.1155 | 1.319250 | 172.9853 | 2.254906 | 0.1989904 |
+| healthyR      |          1 | PROPHET      | Test  | 1.127155 | 101.5991 | 1.049026 | 152.1670 | 1.404551 | 0.2727415 |
+| healthyR      |          2 | XGBOOST      | Test  | 1.595377 | 193.1800 | 1.484794 | 149.4803 | 1.913224 | 0.1452596 |
+| healthyR.ts   |          1 | PROPHET      | Test  | 1.557438 | 181.5925 | 1.319246 | 164.1961 | 1.882514 | 0.1484129 |
+| healthyR.ts   |          2 | XGBOOST      | Test  | 1.692918 | 278.6142 | 1.434007 | 159.8940 | 2.002305 | 0.1465237 |
+| healthyverse  |          1 | PROPHET      | Test  | 1.443676 | 203.2958 | 1.215462 | 165.4975 | 1.706009 | 0.1927493 |
+| healthyverse  |          2 | XGBOOST      | Test  | 1.966848 | 330.7632 | 1.655932 | 164.8079 | 2.254928 | 0.0071031 |
+| healthyR.ai   |          1 | PROPHET      | Test  | 1.224564 | 199.5524 | 1.157579 | 152.1213 | 1.483914 | 0.0722787 |
+| healthyR.ai   |          2 | XGBOOST      | Test  | 1.396429 | 238.0288 | 1.320042 | 148.5602 | 1.709981 | 0.0491540 |
 
 ### Plot Models
 
@@ -379,11 +379,11 @@ best_nested_modeltime_tbl %>%
     ##   # A tibble: 5 x 10
     ##   package       .model_id .model_desc .type   mae  mape  mase smape  rmse    rsq
     ##   <chr>             <int> <chr>       <chr> <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl>
-    ## 1 healthyR.data         2 XGBOOST     Test   1.28  91.9 0.910  135.  1.72 0.0382
-    ## 2 healthyR              1 PROPHET     Test   1.10 101.  1.04   156.  1.37 0.264 
-    ## 3 healthyR.ts           2 XGBOOST     Test   1.41 194.  1.21   157.  1.75 0.0771
-    ## 4 healthyverse          2 XGBOOST     Test   1.36 225.  1.14   160.  1.62 0.0808
-    ## 5 healthyR.ai           1 PROPHET     Test   1.13 180.  1.08   143.  1.38 0.111
+    ## 1 healthyR.data         1 PROPHET     Test   1.51  115.  1.04  187.  1.93 0.0570
+    ## 2 healthyR              1 PROPHET     Test   1.13  102.  1.05  152.  1.40 0.273 
+    ## 3 healthyR.ts           1 PROPHET     Test   1.56  182.  1.32  164.  1.88 0.148 
+    ## 4 healthyverse          1 PROPHET     Test   1.44  203.  1.22  165.  1.71 0.193 
+    ## 5 healthyR.ai           1 PROPHET     Test   1.22  200.  1.16  152.  1.48 0.0723
 
 ``` r
 best_nested_modeltime_tbl %>%
@@ -418,11 +418,11 @@ nested_modeltime_refit_tbl
     ##   # A tibble: 5 x 5
     ##   package       .actual_data       .future_data      .splits   .modeltime_tables
     ##   <chr>         <list>             <list>            <list>    <list>           
-    ## 1 healthyR.data <tibble [352 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
-    ## 2 healthyR      <tibble [342 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
-    ## 3 healthyR.ts   <tibble [293 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
-    ## 4 healthyverse  <tibble [267 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
-    ## 5 healthyR.ai   <tibble [82 x 6]>  <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 1 healthyR.data <tibble [353 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 2 healthyR      <tibble [343 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 3 healthyR.ts   <tibble [294 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 4 healthyverse  <tibble [268 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 5 healthyR.ai   <tibble [83 x 6]>  <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
 
 ``` r
 nested_modeltime_refit_tbl %>%
