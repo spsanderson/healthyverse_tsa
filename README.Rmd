@@ -293,6 +293,7 @@ data_prepared_full_tbl %>%
     , .color_var = name
     , .smooth = FALSE
     , .interactive = FALSE
+    , .facet_scales = "free"
   ) +
   theme_minimal() +
   theme(legend.position = "bottom")
