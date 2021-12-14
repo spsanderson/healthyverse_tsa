@@ -10,9 +10,9 @@ pacman::p_load(
     "tidymodels",
     "lubridate",
     "skimr",
-    "TSstudio",
     "knitr",
     "countrycode",
-    "h2o",
-    "fs"
+    "fs",
+    "workflowsets",
+    "parallel"
 )

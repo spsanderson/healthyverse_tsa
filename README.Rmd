@@ -20,6 +20,8 @@ source("00_scripts/get_data_functions.R")
 source("00_scripts/helper_functions.R")
 source("00_scripts/data_manipulation_functions.R")
 source("00_scripts/ts_decomp.R")
+
+n_cores = detectCores() - 1
 ```
 
 ## Get Data
@@ -179,7 +181,7 @@ plot_seasonal_diagnostics(
     .data = ts_downloads_tbl(
     .data = data_tbl,
     .by_time = "day"
-    ),
+  ),
   .date_var = date,
   .value = log1p(value),
   .interactive = FALSE
@@ -190,10 +192,10 @@ plot_seasonal_diagnostics(
   theme_minimal()
 
 plot_acf_diagnostics(
-      .data = ts_downloads_tbl(
+    .data = ts_downloads_tbl(
     .data = data_tbl,
     .by_time = "day"
-    ),
+  ),
   .date_var = date,
   .value = log1p(value),
   .interactive = FALSE
@@ -325,59 +327,243 @@ Now it is time to make some recipes and models using the modeltime workflow.
 
 ## Modeltime Workflow
 
-### Prophet Regression
-We will first make a `progphet_reg` 
+### Recipe Object
 
-```{r propht_reg}
-rec_prophet <- recipe(value_trans ~ date, extract_nested_test_split(nested_data_tbl))
+```{r rec_obj}
+recipe_base <- recipe(
+  value_trans ~ .
+  , data = extract_nested_test_split(nested_data_tbl)
+  ) %>%
+  step_mutate(yr = lubridate::year(date)) %>%
+  step_harmonic(yr, frequency = 365/12, cycle_size = 1) %>%
+  step_rm(yr) %>%
+  step_hai_fourier(value_trans, scale_type = "sincos", period = 365/12, order = 1) %>%
+  step_lag(value_trans, lag = 1) %>%
+  step_impute_knn(contains("lag_"))
+
+recipe_base
+
+
+```
+
+### Models
+```{r time_series_models}
+# Models ------------------------------------------------------------------
+
+# Auto ARIMA --------------------------------------------------------------
+
+model_spec_arima_no_boost <- arima_reg() %>%
+  set_engine(engine = "auto_arima")
+
+wflw_auto_arima <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_arima_no_boost)
+
+# Boosted Auto ARIMA ------------------------------------------------------
+
+model_spec_arima_boosted <- arima_boost(
+  min_n = 2
+  , learn_rate = 0.015
+) %>%
+  set_engine(engine = "auto_arima_xgboost")
+
+wflw_arima_boosted <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_arima_boosted)
+
+# ETS ---------------------------------------------------------------------
+
+model_spec_ets <- exp_smoothing(
+  seasonal_period = "auto",
+  error = "auto",
+  trend = "auto",
+  season = "auto",
+  damping = "auto"
+) %>%
+  set_engine(engine = "ets") 
+
+wflw_ets <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_ets)
+
+model_spec_croston <- exp_smoothing(
+  seasonal_period = "auto",
+  error = "auto",
+  trend = "auto",
+  season = "auto",
+  damping = "auto"
+) %>%
+  set_engine(engine = "croston")
+
+wflw_croston <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_croston)
+
+model_spec_theta <- exp_smoothing(
+  seasonal_period = "auto",
+  error = "auto",
+  trend = "auto",
+  season = "auto",
+  damping = "auto"
+) %>%
+  set_engine(engine = "theta")
+
+wflw_theta <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_theta)
+
+
+# STLM ETS ----------------------------------------------------------------
+
+model_spec_stlm_ets <- seasonal_reg(
+  seasonal_period_1 = "auto",
+  seasonal_period_2 = "auto",
+  seasonal_period_3 = "auto"
+) %>%
+  set_engine("stlm_ets")
+
+wflw_stlm_ets <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_stlm_ets)
+
+model_spec_stlm_tbats <- seasonal_reg(
+  seasonal_period_1 = "auto",
+  seasonal_period_2 = "auto",
+  seasonal_period_3 = "auto"
+) %>%
+  set_engine("tbats")
+
+wflw_stlm_tbats <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_stlm_tbats)
+
+model_spec_stlm_arima <- seasonal_reg(
+  seasonal_period_1 = "auto",
+  seasonal_period_2 = "auto",
+  seasonal_period_3 = "auto"
+) %>%
+  set_engine("stlm_arima")
+
+wflw_stlm_arima <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_stlm_arima)
+
+# NNETAR ------------------------------------------------------------------
+
+model_spec_nnetar <- nnetar_reg(
+  mode              = "regression"
+  , seasonal_period = "auto"
+) %>%
+  set_engine("nnetar")
+
+wflw_nnetar <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_nnetar)
+
+
+# Prophet -----------------------------------------------------------------
+
+model_spec_prophet <- prophet_reg(
+  seasonality_yearly = "auto",
+  seasonality_weekly = "auto",
+  seasonality_daily = "auto"
+) %>%
+  set_engine(engine = "prophet")
 
 wflw_prophet <- workflow() %>%
-  add_model(
-    prophet_reg(
-      mode = "regression",
-      seasonality_yearly = "auto",
-      seasonality_weekly = "auto",
-      seasonality_daily  = "auto"
-    ) %>%
-      set_engine("prophet")
-  ) %>%
-  add_recipe(rec_prophet)
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_prophet)
 
-wflw_prophet
-```
+model_spec_prophet_boost <- prophet_boost(
+  learn_rate = 0.1
+  , trees = 10
+  , seasonality_yearly = FALSE
+  , seasonality_weekly = FALSE
+  , seasonality_daily  = FALSE
+) %>% 
+  set_engine("prophet_xgboost") 
 
-### XGBoost Regression
-We will use the `boost_tree` function
+wflw_prophet_boost <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_prophet_boost)
 
-```{r xgboost}
-rec_xgboost <- recipe(value_trans ~ date, extract_nested_test_split(nested_data_tbl)) %>%
-  step_timeseries_signature(date) %>%
-  step_rm(date) %>%
-  step_zv(all_predictors()) %>%
-  step_dummy(all_nominal_predictors(), one_hot = TRUE)
+# TSLM --------------------------------------------------------------------
+
+model_spec_lm <- linear_reg() %>%
+  set_engine("lm")
+
+wflw_lm <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_lm)
+
+model_spec_glm <- linear_reg(
+  penalty = 1,
+  mixture = 0.5
+) %>%
+  set_engine("glmnet")
+
+wflw_glm <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_glm)
+
+# MARS --------------------------------------------------------------------
+
+model_spec_mars <- mars(mode = "regression") %>%
+  set_engine("earth")
+
+wflw_mars <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_mars)
+
+# XGBoost -----------------------------------------------------------------
+
+model_spec_xgboost <- boost_tree(
+  mode  = "regression",
+  mtry  = 10,
+  trees = 100,
+  min_n = 5,
+  tree_depth = 3,
+  learn_rate = 0.3,
+  loss_reduction = 0.01
+) %>%
+  set_engine("xgboost")
 
 wflw_xgboost <- workflow() %>%
-  add_model(
-    boost_tree(
-      mode = "regression"
-    ) %>%
-      set_engine("xgboost")
-  ) %>%
-  add_recipe(rec_xgboost)
-
-wflw_xgboost
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_xgboost)
 ```
+
 
 ### Nested Modeltime Tables
 ```{r nested_modeltime_tables}
+parallel_start(n_cores)
 nested_modeltime_tbl <- modeltime_nested_fit(
   # Nested Data
   nested_data = nested_data_tbl,
+  control = control_nested_fit(
+    verbose = TRUE,
+    allow_par = TRUE,
+    cores = n_cores
+  ),
   
   # Add workflows
+  wflw_arima_boosted,
+  wflw_auto_arima,
+  wflw_croston,
+  wflw_ets,
+  wflw_glm,
+  wflw_lm,
+  wflw_mars,
+  wflw_nnetar,
   wflw_prophet,
+  wflw_prophet_boost,
+  wflw_stlm_arima,
+  wflw_stlm_ets,
+  wflw_stlm_tbats,
+  wflw_theta,
   wflw_xgboost
 )
+parallel_stop()
 
 nested_modeltime_tbl
 ```
@@ -396,7 +582,8 @@ nested_modeltime_tbl %>%
   group_by(package) %>%
   plot_modeltime_forecast(
     .interactive = FALSE,
-    .conf_interval_alpha = .2
+    .conf_interval_alpha = .2,
+    .facet_scales = "free"
   ) +
   theme_minimal() +
   theme(legend.position = "bottom")
@@ -419,7 +606,8 @@ best_nested_modeltime_tbl %>%
   group_by(package) %>%
   plot_modeltime_forecast(
     .interactive = FALSE,
-    .conf_interval_alpha = 0.2
+    .conf_interval_alpha = 0.2,
+    .facet_scales = "free"
   ) +
   theme_minimal() +
   theme(legend.position = "bottom")
@@ -430,10 +618,16 @@ best_nested_modeltime_tbl %>%
 Now that we have the best models, we can make our future forecasts.
 
 ```{r refit}
+parallel_start(n_cores)
 nested_modeltime_refit_tbl <- best_nested_modeltime_tbl %>%
   modeltime_nested_refit(
-    control = control_nested_refit(verbose = TRUE)
+    control = control_nested_refit(
+      verbose = TRUE, 
+      allow_par = TRUE, 
+      cores = n_cores
+    )
   )
+parallel_stop()
 
 nested_modeltime_refit_tbl
 
@@ -453,7 +647,8 @@ nested_modeltime_refit_tbl %>%
   group_by(package) %>%
   plot_modeltime_forecast(
     .interactive = FALSE,
-    .conf_interval_alpha = 0.2
+    .conf_interval_alpha = 0.2,
+    .facet_scales = "free"
   ) +
   theme_minimal() +
   theme(legend.position = "bottom")

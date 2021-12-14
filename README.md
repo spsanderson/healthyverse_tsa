@@ -220,96 +220,259 @@ workflow.
 
 ## Modeltime Workflow
 
-### Prophet Regression
-
-We will first make a `progphet_reg`
+### Recipe Object
 
 ``` r
-rec_prophet <- recipe(value_trans ~ date, extract_nested_test_split(nested_data_tbl))
+recipe_base <- recipe(
+  value_trans ~ .
+  , data = extract_nested_test_split(nested_data_tbl)
+  ) %>%
+  step_mutate(yr = lubridate::year(date)) %>%
+  step_harmonic(yr, frequency = 365/12, cycle_size = 1) %>%
+  step_rm(yr) %>%
+  step_hai_fourier(value_trans, scale_type = "sincos", period = 365/12, order = 1) %>%
+  step_lag(value_trans, lag = 1) %>%
+  step_impute_knn(contains("lag_"))
+
+recipe_base
+```
+
+    ## Recipe
+    ## 
+    ## Inputs:
+    ## 
+    ##       role #variables
+    ##    outcome          1
+    ##  predictor          5
+    ## 
+    ## Operations:
+    ## 
+    ## Variable mutation
+    ## Harmonic numeric variables for yr
+    ## Delete terms yr
+    ## Fourier transformation on value_trans
+    ## Lagging value_trans
+    ## K-nearest neighbor imputation for contains("lag_")
+
+### Models
+
+``` r
+# Models ------------------------------------------------------------------
+
+# Auto ARIMA --------------------------------------------------------------
+
+model_spec_arima_no_boost <- arima_reg() %>%
+  set_engine(engine = "auto_arima")
+
+wflw_auto_arima <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_arima_no_boost)
+
+# Boosted Auto ARIMA ------------------------------------------------------
+
+model_spec_arima_boosted <- arima_boost(
+  min_n = 2
+  , learn_rate = 0.015
+) %>%
+  set_engine(engine = "auto_arima_xgboost")
+
+wflw_arima_boosted <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_arima_boosted)
+
+# ETS ---------------------------------------------------------------------
+
+model_spec_ets <- exp_smoothing(
+  seasonal_period = "auto",
+  error = "auto",
+  trend = "auto",
+  season = "auto",
+  damping = "auto"
+) %>%
+  set_engine(engine = "ets") 
+
+wflw_ets <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_ets)
+
+model_spec_croston <- exp_smoothing(
+  seasonal_period = "auto",
+  error = "auto",
+  trend = "auto",
+  season = "auto",
+  damping = "auto"
+) %>%
+  set_engine(engine = "croston")
+
+wflw_croston <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_croston)
+
+model_spec_theta <- exp_smoothing(
+  seasonal_period = "auto",
+  error = "auto",
+  trend = "auto",
+  season = "auto",
+  damping = "auto"
+) %>%
+  set_engine(engine = "theta")
+
+wflw_theta <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_theta)
+
+
+# STLM ETS ----------------------------------------------------------------
+
+model_spec_stlm_ets <- seasonal_reg(
+  seasonal_period_1 = "auto",
+  seasonal_period_2 = "auto",
+  seasonal_period_3 = "auto"
+) %>%
+  set_engine("stlm_ets")
+
+wflw_stlm_ets <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_stlm_ets)
+
+model_spec_stlm_tbats <- seasonal_reg(
+  seasonal_period_1 = "auto",
+  seasonal_period_2 = "auto",
+  seasonal_period_3 = "auto"
+) %>%
+  set_engine("tbats")
+
+wflw_stlm_tbats <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_stlm_tbats)
+
+model_spec_stlm_arima <- seasonal_reg(
+  seasonal_period_1 = "auto",
+  seasonal_period_2 = "auto",
+  seasonal_period_3 = "auto"
+) %>%
+  set_engine("stlm_arima")
+
+wflw_stlm_arima <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_stlm_arima)
+
+# NNETAR ------------------------------------------------------------------
+
+model_spec_nnetar <- nnetar_reg(
+  mode              = "regression"
+  , seasonal_period = "auto"
+) %>%
+  set_engine("nnetar")
+
+wflw_nnetar <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_nnetar)
+
+
+# Prophet -----------------------------------------------------------------
+
+model_spec_prophet <- prophet_reg(
+  seasonality_yearly = "auto",
+  seasonality_weekly = "auto",
+  seasonality_daily = "auto"
+) %>%
+  set_engine(engine = "prophet")
 
 wflw_prophet <- workflow() %>%
-  add_model(
-    prophet_reg(
-      mode = "regression",
-      seasonality_yearly = "auto",
-      seasonality_weekly = "auto",
-      seasonality_daily  = "auto"
-    ) %>%
-      set_engine("prophet")
-  ) %>%
-  add_recipe(rec_prophet)
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_prophet)
 
-wflw_prophet
-```
+model_spec_prophet_boost <- prophet_boost(
+  learn_rate = 0.1
+  , trees = 10
+  , seasonality_yearly = FALSE
+  , seasonality_weekly = FALSE
+  , seasonality_daily  = FALSE
+) %>% 
+  set_engine("prophet_xgboost") 
 
-    ## == Workflow ====================================================================
-    ## Preprocessor: Recipe
-    ## Model: prophet_reg()
-    ## 
-    ## -- Preprocessor ----------------------------------------------------------------
-    ## 0 Recipe Steps
-    ## 
-    ## -- Model -----------------------------------------------------------------------
-    ## PROPHET Regression Model Specification (regression)
-    ## 
-    ## Main Arguments:
-    ##   seasonality_yearly = auto
-    ##   seasonality_weekly = auto
-    ##   seasonality_daily = auto
-    ## 
-    ## Computational engine: prophet
+wflw_prophet_boost <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_prophet_boost)
 
-### XGBoost Regression
+# TSLM --------------------------------------------------------------------
 
-We will use the `boost_tree` function
+model_spec_lm <- linear_reg() %>%
+  set_engine("lm")
 
-``` r
-rec_xgboost <- recipe(value_trans ~ date, extract_nested_test_split(nested_data_tbl)) %>%
-  step_timeseries_signature(date) %>%
-  step_rm(date) %>%
-  step_zv(all_predictors()) %>%
-  step_dummy(all_nominal_predictors(), one_hot = TRUE)
+wflw_lm <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_lm)
+
+model_spec_glm <- linear_reg(
+  penalty = 1,
+  mixture = 0.5
+) %>%
+  set_engine("glmnet")
+
+wflw_glm <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_glm)
+
+# MARS --------------------------------------------------------------------
+
+model_spec_mars <- mars(mode = "regression") %>%
+  set_engine("earth")
+
+wflw_mars <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_mars)
+
+# XGBoost -----------------------------------------------------------------
+
+model_spec_xgboost <- boost_tree(
+  mode  = "regression",
+  mtry  = 10,
+  trees = 100,
+  min_n = 5,
+  tree_depth = 3,
+  learn_rate = 0.3,
+  loss_reduction = 0.01
+) %>%
+  set_engine("xgboost")
 
 wflw_xgboost <- workflow() %>%
-  add_model(
-    boost_tree(
-      mode = "regression"
-    ) %>%
-      set_engine("xgboost")
-  ) %>%
-  add_recipe(rec_xgboost)
-
-wflw_xgboost
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_xgboost)
 ```
-
-    ## == Workflow ====================================================================
-    ## Preprocessor: Recipe
-    ## Model: boost_tree()
-    ## 
-    ## -- Preprocessor ----------------------------------------------------------------
-    ## 4 Recipe Steps
-    ## 
-    ## * step_timeseries_signature()
-    ## * step_rm()
-    ## * step_zv()
-    ## * step_dummy()
-    ## 
-    ## -- Model -----------------------------------------------------------------------
-    ## Boosted Tree Model Specification (regression)
-    ## 
-    ## Computational engine: xgboost
 
 ### Nested Modeltime Tables
 
 ``` r
+parallel_start(n_cores)
 nested_modeltime_tbl <- modeltime_nested_fit(
   # Nested Data
   nested_data = nested_data_tbl,
+  control = control_nested_fit(
+    verbose = TRUE,
+    allow_par = TRUE,
+    cores = n_cores
+  ),
   
   # Add workflows
+  wflw_arima_boosted,
+  wflw_auto_arima,
+  wflw_croston,
+  wflw_ets,
+  wflw_glm,
+  wflw_lm,
+  wflw_mars,
+  wflw_nnetar,
   wflw_prophet,
+  wflw_prophet_boost,
+  wflw_stlm_arima,
+  wflw_stlm_ets,
+  wflw_stlm_tbats,
+  wflw_theta,
   wflw_xgboost
 )
+parallel_stop()
 
 nested_modeltime_tbl
 ```
@@ -318,11 +481,11 @@ nested_modeltime_tbl
     ##   # A tibble: 5 x 5
     ##   package       .actual_data       .future_data      .splits   .modeltime_tables
     ##   <chr>         <list>             <list>            <list>    <list>           
-    ## 1 healthyR.data <tibble [355 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [2~
-    ## 2 healthyR      <tibble [345 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [2~
-    ## 3 healthyR.ts   <tibble [296 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [2~
-    ## 4 healthyverse  <tibble [270 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [2~
-    ## 5 healthyR.ai   <tibble [85 x 6]>  <tibble [28 x 6]> <split [~ <mdl_time_tbl [2~
+    ## 1 healthyR.data <tibble [355 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 2 healthyR      <tibble [345 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 3 healthyR.ts   <tibble [296 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 4 healthyverse  <tibble [270 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 5 healthyR.ai   <tibble [85 x 6]>  <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
 
 ### Model Accuracy
 
@@ -332,18 +495,83 @@ nested_modeltime_tbl %>%
   knitr::kable()
 ```
 
-| package       | .model\_id | .model\_desc | .type |      mae |     mape |     mase |    smape |     rmse |       rsq |
-|:--------------|-----------:|:-------------|:------|---------:|---------:|---------:|---------:|---------:|----------:|
-| healthyR.data |          1 | PROPHET      | Test  | 1.539589 | 117.0579 | 1.143972 | 188.1920 | 1.943351 | 0.0679789 |
-| healthyR.data |          2 | XGBOOST      | Test  | 2.224687 | 216.7707 | 1.653026 | 184.7057 | 2.552042 | 0.0521416 |
-| healthyR      |          1 | PROPHET      | Test  | 1.195446 | 109.9151 | 1.236921 | 161.4236 | 1.451278 | 0.2382977 |
-| healthyR      |          2 | XGBOOST      | Test  | 1.730908 | 204.6016 | 1.790960 | 159.7725 | 1.990776 | 0.0580001 |
-| healthyR.ts   |          1 | PROPHET      | Test  | 1.653589 | 163.1556 | 1.470962 | 169.5758 | 1.959304 | 0.1194586 |
-| healthyR.ts   |          2 | XGBOOST      | Test  | 1.719685 | 216.7305 | 1.529758 | 169.5818 | 2.016743 | 0.0286900 |
-| healthyverse  |          1 | PROPHET      | Test  | 1.537795 | 184.7202 | 1.422888 | 170.3038 | 1.784479 | 0.1583085 |
-| healthyverse  |          2 | XGBOOST      | Test  | 1.812156 | 244.2065 | 1.676748 | 172.9042 | 2.052189 | 0.0322481 |
-| healthyR.ai   |          1 | PROPHET      | Test  | 1.328192 | 204.2534 | 1.284209 | 161.6474 | 1.550112 | 0.0770644 |
-| healthyR.ai   |          2 | XGBOOST      | Test  | 1.377872 | 194.1161 | 1.332243 | 157.5731 | 1.676813 | 0.0147682 |
+| package       | .model\_id | .model\_desc               | .type |       mae |       mape |      mase |      smape |      rmse |       rsq |
+|:--------------|-----------:|:---------------------------|:------|----------:|-----------:|----------:|-----------:|----------:|----------:|
+| healthyR.data |          1 | ARIMA W XGBOOST ERRORS     | Test  | 0.9539296 |  57.567730 | 0.7088053 |  88.962467 | 1.4575465 | 0.4155969 |
+| healthyR.data |          2 | REGRESSION                 | Test  | 0.2541406 |   9.523525 | 0.1888359 |  10.846551 | 0.7774458 | 0.7473263 |
+| healthyR.data |          3 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
+| healthyR.data |          4 | ETSANN                     | Test  | 1.4427926 | 102.637585 | 1.0720487 | 196.968043 | 1.8896680 |        NA |
+| healthyR.data |          5 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
+| healthyR.data |          6 | LM                         | Test  | 0.2626111 |  11.542428 | 0.1951298 |  12.545023 | 0.7686725 | 0.7467686 |
+| healthyR.data |          7 | EARTH                      | Test  | 0.2442356 |   8.109690 | 0.1814762 |   8.474300 | 0.6540786 | 0.7831659 |
+| healthyR.data |          8 | NNAR                       | Test  | 0.2440196 |   9.281809 | 0.1813157 |   9.501993 | 0.6562000 | 0.7813927 |
+| healthyR.data |          9 | PROPHET W REGRESSORS       | Test  | 0.2493440 |   9.009910 | 0.1852719 |  10.344648 | 0.7731809 | 0.7531380 |
+| healthyR.data |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.7263989 |  47.241797 | 0.5397415 |  65.337488 | 1.1523135 | 0.7367867 |
+| healthyR.data |         11 | SEASONAL DECOMP REGRESSION | Test  | 0.8851050 | 101.038423 | 0.6576661 |  80.148092 | 1.2465750 | 0.4372107 |
+| healthyR.data |         12 | SEASONAL DECOMP ETSANN     | Test  | 1.6726175 | 147.876224 | 1.2428172 | 135.890822 | 2.1402675 | 0.0395912 |
+| healthyR.data |         13 | TBATS                      | Test  | 1.3595302 |  88.840027 | 1.0101817 | 159.424066 | 1.8600389 | 0.0801192 |
+| healthyR.data |         14 | THETA METHOD               | Test  | 1.4785397 | 106.369285 | 1.0986102 | 193.948724 | 1.9241819 | 0.3072711 |
+| healthyR.data |         15 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
+| healthyR      |          1 | ARIMA                      | Test  | 0.7909597 |  76.747592 | 0.8184014 | 100.849276 | 1.0229837 | 0.7698802 |
+| healthyR      |          2 | REGRESSION                 | Test  | 0.1204576 |   8.210677 | 0.1246368 |   8.263721 | 0.2590662 | 0.9630017 |
+| healthyR      |          3 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
+| healthyR      |          4 | ETSANA                     | Test  | 1.3834211 | 132.017134 | 1.4314178 | 165.957880 | 1.7069661 | 0.0201388 |
+| healthyR      |          5 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
+| healthyR      |          6 | LM                         | Test  | 0.1229756 |   8.725321 | 0.1272422 |   8.721910 | 0.2569505 | 0.9629555 |
+| healthyR      |          7 | EARTH                      | Test  | 0.0793219 |   3.828837 | 0.0820739 |   3.624663 | 0.1707017 | 0.9912367 |
+| healthyR      |          8 | NNAR                       | Test  | 0.1604987 |  10.107350 | 0.1660670 |   9.058178 | 0.3342401 | 0.9744210 |
+| healthyR      |          9 | PROPHET W REGRESSORS       | Test  | 0.1148449 |   7.680393 | 0.1188294 |   7.782079 | 0.2566435 | 0.9654386 |
+| healthyR      |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.4065362 |  32.500794 | 0.4206407 |  40.784894 | 0.5853437 | 0.9704271 |
+| healthyR      |         11 | SEASONAL DECOMP REGRESSION | Test  | 0.7852603 | 142.503684 | 0.8125042 |  71.536272 | 1.0862024 | 0.6128620 |
+| healthyR      |         12 | SEASONAL DECOMP ETSANN     | Test  | 1.5628791 | 204.089960 | 1.6171018 | 140.613625 | 1.8773705 | 0.1430922 |
+| healthyR      |         13 | TBATS                      | Test  | 1.4180421 | 139.203665 | 1.4672398 | 173.754828 | 1.7233165 | 0.0236852 |
+| healthyR      |         14 | THETA METHOD               | Test  | 1.3604892 | 122.908632 | 1.4076902 | 172.185963 | 1.6701947 | 0.3214148 |
+| healthyR      |         15 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
+| healthyR.ts   |          1 | ARIMA W XGBOOST ERRORS     | Test  | 1.0230404 |  87.263424 | 0.9100532 | 116.397702 | 1.3366456 | 0.6503122 |
+| healthyR.ts   |          2 | REGRESSION                 | Test  | 0.1606959 |   9.721212 | 0.1429482 |   9.826879 | 0.3498904 | 0.9510755 |
+| healthyR.ts   |          3 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
+| healthyR.ts   |          4 | ETSANA                     | Test  | 1.6490150 | 164.016642 | 1.4668936 | 168.682850 | 1.9521849 | 0.1456142 |
+| healthyR.ts   |          5 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
+| healthyR.ts   |          6 | LM                         | Test  | 0.1610949 |   9.995584 | 0.1433031 |  10.053508 | 0.3483834 | 0.9511080 |
+| healthyR.ts   |          7 | EARTH                      | Test  | 0.1429222 |   6.980695 | 0.1271375 |   6.671368 | 0.2431659 | 0.9760373 |
+| healthyR.ts   |          8 | NNAR                       | Test  | 0.2131699 |  10.930258 | 0.1896269 |   9.869167 | 0.3811835 | 0.9550059 |
+| healthyR.ts   |          9 | PROPHET W REGRESSORS       | Test  | 0.1562484 |  10.111611 | 0.1389919 |  10.462318 | 0.3494619 | 0.9532313 |
+| healthyR.ts   |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.6773524 |  53.646471 | 0.6025438 |  76.989707 | 0.9287496 | 0.9046142 |
+| healthyR.ts   |         11 | SEASONAL DECOMP REGRESSION | Test  | 1.0990650 | 253.740972 | 0.9776815 |  95.894626 | 1.3501959 | 0.5716431 |
+| healthyR.ts   |         12 | SEASONAL DECOMP ETSANN     | Test  | 1.9620829 | 312.598400 | 1.7453854 | 148.727506 | 2.3187291 | 0.0907497 |
+| healthyR.ts   |         13 | TBATS                      | Test  | 1.5044802 | 137.042514 | 1.3383215 | 167.611858 | 1.8273906 | 0.3132129 |
+| healthyR.ts   |         14 | THETA METHOD               | Test  | 1.6534546 | 158.677894 | 1.4708428 | 181.112330 | 1.9790301 | 0.4257397 |
+| healthyR.ts   |         15 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
+| healthyverse  |          1 | ARIMA W XGBOOST ERRORS     | Test  | 0.8800849 |  85.809297 | 0.8143233 | 125.759668 | 1.0979510 | 0.7074176 |
+| healthyverse  |          2 | REGRESSION                 | Test  | 0.1167632 |  10.310503 | 0.1080385 |   9.994666 | 0.2167152 | 0.9736537 |
+| healthyverse  |          3 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
+| healthyverse  |          4 | ETSANA                     | Test  | 1.4137250 | 164.290903 | 1.3080888 | 173.771740 | 1.6534416 | 0.1795717 |
+| healthyverse  |          5 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
+| healthyverse  |          6 | LM                         | Test  | 0.1129237 |   9.403530 | 0.1044858 |   9.221203 | 0.2172038 | 0.9737605 |
+| healthyverse  |          7 | EARTH                      | Test  | 0.1190807 |   8.805075 | 0.1101828 |   8.293174 | 0.1900575 | 0.9889024 |
+| healthyverse  |          8 | NNAR                       | Test  | 0.0520331 |   3.627361 | 0.0481451 |   3.379552 | 0.1277264 | 0.9920367 |
+| healthyverse  |          9 | PROPHET W REGRESSORS       | Test  | 0.1074187 |   8.231319 | 0.0993922 |   8.111631 | 0.2115953 | 0.9751377 |
+| healthyverse  |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.5743702 |  53.698922 | 0.5314521 |  79.862581 | 0.7392861 | 0.9732105 |
+| healthyverse  |         11 | SEASONAL DECOMP REGRESSION | Test  | 0.9394805 | 187.843452 | 0.8692808 |  94.322494 | 1.2097895 | 0.5662489 |
+| healthyverse  |         12 | SEASONAL DECOMP ETSANN     | Test  | 1.7494285 | 296.816693 | 1.6187080 | 162.388602 | 2.0720052 | 0.0772534 |
+| healthyverse  |         13 | TBATS                      | Test  | 1.3579551 | 152.008559 | 1.2564862 | 167.051458 | 1.6337584 | 0.3516964 |
+| healthyverse  |         14 | THETA METHOD               | Test  | 1.4486992 | 151.681348 | 1.3404497 | 171.203346 | 1.7376931 | 0.3113371 |
+| healthyverse  |         15 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
+| healthyR.ai   |          1 | ARIMA                      | Test  | 0.8932996 |  85.574772 | 0.8637177 | 119.119215 | 1.1906633 | 0.5598976 |
+| healthyR.ai   |          2 | REGRESSION                 | Test  | 0.1236027 |  12.255400 | 0.1195096 |  12.152576 | 0.2249203 | 0.9721093 |
+| healthyR.ai   |          3 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
+| healthyR.ai   |          4 | ETSANN                     | Test  | 1.2735444 | 133.132811 | 1.2313705 | 179.115015 | 1.5704310 |        NA |
+| healthyR.ai   |          5 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
+| healthyR.ai   |          6 | LM                         | Test  | 0.1291965 |  14.288179 | 0.1249181 |  14.445627 | 0.2280026 | 0.9709831 |
+| healthyR.ai   |          7 | EARTH                      | Test  | 0.1028104 |   5.254968 | 0.0994058 |   5.574210 | 0.2564936 | 0.9747478 |
+| healthyR.ai   |          8 | NNAR                       | Test  | 0.3726153 |  30.767611 | 0.3602760 |  39.949117 | 0.5964935 | 0.9182045 |
+| healthyR.ai   |          9 | PROPHET W REGRESSORS       | Test  | 0.1335428 |  16.121605 | 0.1291204 |  17.479595 | 0.2253356 | 0.9704631 |
+| healthyR.ai   |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.5020447 |  36.385663 | 0.4854193 |  46.653238 | 0.8230060 | 0.8073059 |
+| healthyR.ai   |         11 | SEASONAL DECOMP REGRESSION | Test  | 1.2342329 | 331.856745 | 1.1933608 | 105.733421 | 1.7416929 | 0.3749903 |
+| healthyR.ai   |         12 | SEASONAL DECOMP ETSANN     | Test  | 1.5903355 | 324.113546 | 1.5376709 | 136.265095 | 1.9854483 | 0.0569139 |
+| healthyR.ai   |         13 | BATS                       | Test  | 1.3432343 | 148.188443 | 1.2987526 | 175.016607 | 1.6447095 | 0.0002229 |
+| healthyR.ai   |         14 | THETA METHOD               | Test  | 1.2663075 | 131.531961 | 1.2243733 | 179.422702 | 1.5633091 | 0.3302740 |
+| healthyR.ai   |         15 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
 
 ### Plot Models
 
@@ -353,7 +581,8 @@ nested_modeltime_tbl %>%
   group_by(package) %>%
   plot_modeltime_forecast(
     .interactive = FALSE,
-    .conf_interval_alpha = .2
+    .conf_interval_alpha = .2,
+    .facet_scales = "free"
   ) +
   theme_minimal() +
   theme(legend.position = "bottom")
@@ -377,13 +606,13 @@ best_nested_modeltime_tbl %>%
 
     ## # Nested Modeltime Table
     ##   # A tibble: 5 x 10
-    ##   package       .model_id .model_desc .type   mae  mape  mase smape  rmse    rsq
-    ##   <chr>             <int> <chr>       <chr> <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl>
-    ## 1 healthyR.data         1 PROPHET     Test   1.54  117.  1.14  188.  1.94 0.0680
-    ## 2 healthyR              1 PROPHET     Test   1.20  110.  1.24  161.  1.45 0.238 
-    ## 3 healthyR.ts           1 PROPHET     Test   1.65  163.  1.47  170.  1.96 0.119 
-    ## 4 healthyverse          1 PROPHET     Test   1.54  185.  1.42  170.  1.78 0.158 
-    ## 5 healthyR.ai           1 PROPHET     Test   1.33  204.  1.28  162.  1.55 0.0771
+    ##   package      .model_id .model_desc .type    mae  mape   mase smape  rmse   rsq
+    ##   <chr>            <int> <chr>       <chr>  <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl>
+    ## 1 healthyR.da~         7 EARTH       Test  0.244   8.11 0.181   8.47 0.654 0.783
+    ## 2 healthyR             7 EARTH       Test  0.0793  3.83 0.0821  3.62 0.171 0.991
+    ## 3 healthyR.ts          7 EARTH       Test  0.143   6.98 0.127   6.67 0.243 0.976
+    ## 4 healthyverse         8 NNAR        Test  0.0520  3.63 0.0481  3.38 0.128 0.992
+    ## 5 healthyR.ai          2 REGRESSION  Test  0.124  12.3  0.120  12.2  0.225 0.972
 
 ``` r
 best_nested_modeltime_tbl %>%
@@ -391,7 +620,8 @@ best_nested_modeltime_tbl %>%
   group_by(package) %>%
   plot_modeltime_forecast(
     .interactive = FALSE,
-    .conf_interval_alpha = 0.2
+    .conf_interval_alpha = 0.2,
+    .facet_scales = "free"
   ) +
   theme_minimal() +
   theme(legend.position = "bottom")
@@ -404,13 +634,17 @@ best_nested_modeltime_tbl %>%
 Now that we have the best models, we can make our future forecasts.
 
 ``` r
+parallel_start(n_cores)
 nested_modeltime_refit_tbl <- best_nested_modeltime_tbl %>%
   modeltime_nested_refit(
-    control = control_nested_refit(verbose = TRUE)
+    control = control_nested_refit(
+      verbose = TRUE, 
+      allow_par = TRUE, 
+      cores = n_cores
+    )
   )
-```
+parallel_stop()
 
-``` r
 nested_modeltime_refit_tbl
 ```
 
@@ -441,7 +675,8 @@ nested_modeltime_refit_tbl %>%
   group_by(package) %>%
   plot_modeltime_forecast(
     .interactive = FALSE,
-    .conf_interval_alpha = 0.2
+    .conf_interval_alpha = 0.2,
+    .facet_scales = "free"
   ) +
   theme_minimal() +
   theme(legend.position = "bottom")
