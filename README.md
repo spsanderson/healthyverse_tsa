@@ -1,7 +1,7 @@
 Time Series Analysis and Modeling of the Healthyverse Packages
 ================
 Steven P. Sanderson II, MPH - Data Scientist/IT Manager
-15 December, 2021
+16 December, 2021
 
 ## Get Data
 
@@ -505,7 +505,7 @@ nested_modeltime_tbl %>%
 | healthyR.data |          5 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
 | healthyR.data |          6 | LM                         | Test  | 0.2616084 |  11.390889 | 0.1920097 |  12.391657 | 0.7674836 | 0.7418598 |
 | healthyR.data |          7 | EARTH                      | Test  | 0.2466411 |   8.369078 | 0.1810243 |   8.745561 | 0.6527079 | 0.7782783 |
-| healthyR.data |          8 | NNAR                       | Test  | 0.2217371 |   7.360063 | 0.1627458 |   7.637528 | 0.6444284 | 0.7834651 |
+| healthyR.data |          8 | NNAR                       | Test  | 0.2427884 |   8.559619 | 0.1781966 |   8.569214 | 0.6597564 | 0.7739675 |
 | healthyR.data |          9 | PROPHET W REGRESSORS       | Test  | 0.2487991 |   9.131470 | 0.1826082 |  10.448381 | 0.7717903 | 0.7479554 |
 | healthyR.data |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.7449067 |  49.491371 | 0.5467306 |  68.989090 | 1.1628847 | 0.7313771 |
 | healthyR.data |         11 | SEASONAL DECOMP REGRESSION | Test  | 0.7868014 |  87.585330 | 0.5774796 |  72.434713 | 1.0979308 | 0.5319671 |
@@ -520,7 +520,7 @@ nested_modeltime_tbl %>%
 | healthyR      |          5 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
 | healthyR      |          6 | LM                         | Test  | 0.1223055 |   8.620244 | 0.1206279 |   8.625375 | 0.2564429 | 0.9631368 |
 | healthyR      |          7 | EARTH                      | Test  | 0.0792178 |   3.824511 | 0.0781312 |   3.621010 | 0.1704276 | 0.9912538 |
-| healthyR      |          8 | NNAR                       | Test  | 0.1484895 |   7.174434 | 0.1464527 |   6.574972 | 0.3266857 | 0.9810757 |
+| healthyR      |          8 | NNAR                       | Test  | 0.1418900 |   6.635275 | 0.1399437 |   6.050674 | 0.3263375 | 0.9804869 |
 | healthyR      |          9 | PROPHET W REGRESSORS       | Test  | 0.1154213 |   7.745281 | 0.1138381 |   7.836908 | 0.2549914 | 0.9654687 |
 | healthyR      |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.3940583 |  32.009347 | 0.3886531 |  41.685767 | 0.5764835 | 0.9699969 |
 | healthyR      |         11 | SEASONAL DECOMP REGRESSION | Test  | 0.7209894 | 122.759436 | 0.7110998 |  75.498101 | 0.9478895 | 0.6999186 |
@@ -535,7 +535,7 @@ nested_modeltime_tbl %>%
 | healthyR.ts   |          5 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
 | healthyR.ts   |          6 | LM                         | Test  | 0.1612879 |  10.405596 | 0.1385415 |  10.405055 | 0.3473217 | 0.9486307 |
 | healthyR.ts   |          7 | EARTH                      | Test  | 0.1430441 |   6.959687 | 0.1228706 |   6.646028 | 0.2427411 | 0.9743213 |
-| healthyR.ts   |          8 | NNAR                       | Test  | 0.2039895 |   9.605184 | 0.1752209 |   8.787299 | 0.3722855 | 0.9543569 |
+| healthyR.ts   |          8 | NNAR                       | Test  | 0.2061114 |   9.332112 | 0.1770435 |   8.433951 | 0.3866174 | 0.9505860 |
 | healthyR.ts   |          9 | PROPHET W REGRESSORS       | Test  | 0.1546600 |   9.895933 | 0.1328484 |   9.939028 | 0.3456932 | 0.9508419 |
 | healthyR.ts   |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.6328368 |  44.741135 | 0.5435879 |  59.065064 | 0.8806863 | 0.9001871 |
 | healthyR.ts   |         11 | SEASONAL DECOMP REGRESSION | Test  | 1.0106370 | 212.013307 | 0.8681071 |  89.761107 | 1.2185700 | 0.6407592 |
@@ -550,7 +550,7 @@ nested_modeltime_tbl %>%
 | healthyverse  |          5 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
 | healthyverse  |          6 | LM                         | Test  | 0.1138545 |  12.599464 | 0.1035343 |  15.842506 | 0.2159928 | 0.9734896 |
 | healthyverse  |          7 | EARTH                      | Test  | 0.1178451 |   9.708191 | 0.1071631 |   9.514803 | 0.1896264 | 0.9888331 |
-| healthyverse  |          8 | NNAR                       | Test  | 0.0348703 |   5.650246 | 0.0317095 |   7.898382 | 0.0611132 | 0.9975080 |
+| healthyverse  |          8 | NNAR                       | Test  | 0.0996135 |   8.060337 | 0.0905841 |   7.043495 | 0.2102197 | 0.9781731 |
 | healthyverse  |          9 | PROPHET W REGRESSORS       | Test  | 0.1103120 |  14.305270 | 0.1003129 |  15.530062 | 0.2095755 | 0.9748133 |
 | healthyverse  |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.5850963 |  78.958511 | 0.5320609 |  83.826515 | 0.7495393 | 0.9781054 |
 | healthyverse  |         11 | SEASONAL DECOMP REGRESSION | Test  | 0.8137411 | 231.550647 | 0.7399805 |  92.702073 | 1.0055602 | 0.6701211 |
@@ -565,7 +565,7 @@ nested_modeltime_tbl %>%
 | healthyR.ai   |          5 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
 | healthyR.ai   |          6 | LM                         | Test  | 0.1324935 |  14.205349 | 0.1244833 |  14.020712 | 0.2244611 | 0.9705701 |
 | healthyR.ai   |          7 | EARTH                      | Test  | 0.1056106 |   5.301133 | 0.0992257 |   5.634894 | 0.2632374 | 0.9725788 |
-| healthyR.ai   |          8 | NNAR                       | Test  | 0.3733719 |  27.973299 | 0.3507988 |  35.443509 | 0.6092379 | 0.9072566 |
+| healthyR.ai   |          8 | NNAR                       | Test  | 0.3837259 |  30.221875 | 0.3605268 |  40.157955 | 0.6187679 | 0.9055486 |
 | healthyR.ai   |          9 | PROPHET W REGRESSORS       | Test  | 0.1358911 |  16.090080 | 0.1276754 |  17.449924 | 0.2250037 | 0.9696245 |
 | healthyR.ai   |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.5227073 |  37.328225 | 0.4911056 |  48.896908 | 0.8345560 | 0.8147540 |
 | healthyR.ai   |         11 | SEASONAL DECOMP REGRESSION | Test  | 1.0369711 | 215.169608 | 0.9742783 |  97.397042 | 1.4253695 | 0.4857779 |
@@ -607,13 +607,13 @@ best_nested_modeltime_tbl %>%
 
     ## # Nested Modeltime Table
     ##   # A tibble: 5 x 10
-    ##   package     .model_id .model_desc .type    mae  mape   mase smape   rmse   rsq
-    ##   <chr>           <int> <chr>       <chr>  <dbl> <dbl>  <dbl> <dbl>  <dbl> <dbl>
-    ## 1 healthyR.d~         8 NNAR        Test  0.222   7.36 0.163   7.64 0.644  0.783
-    ## 2 healthyR            7 EARTH       Test  0.0792  3.82 0.0781  3.62 0.170  0.991
-    ## 3 healthyR.ts         7 EARTH       Test  0.143   6.96 0.123   6.65 0.243  0.974
-    ## 4 healthyver~         8 NNAR        Test  0.0349  5.65 0.0317  7.90 0.0611 0.998
-    ## 5 healthyR.ai         6 LM          Test  0.132  14.2  0.124  14.0  0.224  0.971
+    ##   package      .model_id .model_desc .type    mae  mape   mase smape  rmse   rsq
+    ##   <chr>            <int> <chr>       <chr>  <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl>
+    ## 1 healthyR.da~         7 EARTH       Test  0.247   8.37 0.181   8.75 0.653 0.778
+    ## 2 healthyR             7 EARTH       Test  0.0792  3.82 0.0781  3.62 0.170 0.991
+    ## 3 healthyR.ts          7 EARTH       Test  0.143   6.96 0.123   6.65 0.243 0.974
+    ## 4 healthyverse         7 EARTH       Test  0.118   9.71 0.107   9.51 0.190 0.989
+    ## 5 healthyR.ai          6 LM          Test  0.132  14.2  0.124  14.0  0.224 0.971
 
 ``` r
 best_nested_modeltime_tbl %>%
