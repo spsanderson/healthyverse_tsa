@@ -1,7 +1,7 @@
 Time Series Analysis and Modeling of the Healthyverse Packages
 ================
 Steven P. Sanderson II, MPH - Data Scientist/IT Manager
-26 December, 2021
+27 December, 2021
 
 ## Get Data
 
@@ -9,7 +9,7 @@ Steven P. Sanderson II, MPH - Data Scientist/IT Manager
 glimpse(downloads_tbl)
 ```
 
-    ## Rows: 25,768
+    ## Rows: 25,796
     ## Columns: 11
     ## $ date      <date> 2020-11-23, 2020-11-23, 2020-11-23, 2020-11-23, 2020-11-23,~
     ## $ time      <Period> 15H 36M 55S, 11H 26M 39S, 23H 34M 44S, 18H 39M 32S, 9H 0M~
@@ -23,8 +23,8 @@ glimpse(downloads_tbl)
     ## $ country   <chr> "US", "US", "US", "GB", "US", "US", "DE", "HK", "JP", "US", ~
     ## $ ip_id     <int> 2069, 2804, 78827, 27595, 90474, 90474, 42435, 74, 7655, 638~
 
-The last day in the data set is 2021-12-24 15:35:44, the file was
-birthed on: 2021-11-29 11:38:26, and at report knit time is -598.95
+The last day in the data set is 2021-12-25 23:46:40, the file was
+birthed on: 2021-11-29 11:38:26, and at report knit time is -631.14
 hours old. Happy analyzing!
 
 Now that we have our data lets take a look at it using the `skimr`
@@ -37,7 +37,7 @@ skim(downloads_tbl)
 |                                                  |                |
 |:-------------------------------------------------|:---------------|
 | Name                                             | downloads\_tbl |
-| Number of rows                                   | 25768          |
+| Number of rows                                   | 25796          |
 | Number of columns                                | 11             |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   |                |
 | Column type frequency:                           |                |
@@ -55,37 +55,37 @@ Data summary
 
 | skim\_variable | n\_missing | complete\_rate | min | max | empty | n\_unique | whitespace |
 |:---------------|-----------:|---------------:|----:|----:|------:|----------:|-----------:|
-| r\_version     |      17265 |           0.33 |   5 |   5 |     0 |        29 |          0 |
-| r\_arch        |      17265 |           0.33 |   3 |   7 |     0 |         5 |          0 |
-| r\_os          |      17265 |           0.33 |   7 |  15 |     0 |         9 |          0 |
+| r\_version     |      17282 |           0.33 |   5 |   5 |     0 |        29 |          0 |
+| r\_arch        |      17282 |           0.33 |   3 |   7 |     0 |         5 |          0 |
+| r\_os          |      17282 |           0.33 |   7 |  15 |     0 |         9 |          0 |
 | package        |          0 |           1.00 |   8 |  13 |     0 |         5 |          0 |
 | version        |          0 |           1.00 |   5 |   5 |     0 |        14 |          0 |
-| country        |       2184 |           0.92 |   2 |   2 |     0 |        99 |          0 |
+| country        |       2189 |           0.92 |   2 |   2 |     0 |        99 |          0 |
 
 **Variable type: Date**
 
 | skim\_variable | n\_missing | complete\_rate | min        | max        | median     | n\_unique |
 |:---------------|-----------:|---------------:|:-----------|:-----------|:-----------|----------:|
-| date           |          0 |              1 | 2020-11-23 | 2021-12-24 | 2021-08-04 |       397 |
+| date           |          0 |              1 | 2020-11-23 | 2021-12-25 | 2021-08-04 |       398 |
 
 **Variable type: numeric**
 
-| skim\_variable | n\_missing | complete\_rate |       mean |         sd |  p0 |   p25 |    p50 |     p75 |    p100 | hist  |
-|:---------------|-----------:|---------------:|-----------:|-----------:|----:|------:|-------:|--------:|--------:|:------|
-| size           |          0 |              1 | 1531905.96 | 1879017.21 | 357 | 21941 | 238655 | 3246423 | 5677952 | ▇▁▂▂▁ |
-| ip\_id         |          0 |              1 |    8107.52 |   15331.85 |   1 |   209 |   2831 |    8265 |  143633 | ▇▁▁▁▁ |
+| skim\_variable | n\_missing | complete\_rate |       mean |         sd |  p0 |      p25 |    p50 |     p75 |    p100 | hist  |
+|:---------------|-----------:|---------------:|-----------:|-----------:|----:|---------:|-------:|--------:|--------:|:------|
+| size           |          0 |              1 | 1532014.86 | 1878810.61 | 357 | 22373.75 | 238655 | 3246423 | 5677952 | ▇▁▂▂▁ |
+| ip\_id         |          0 |              1 |    8105.06 |   15328.99 |   1 |   206.00 |   2831 |    8265 |  143633 | ▇▁▁▁▁ |
 
 **Variable type: POSIXct**
 
 | skim\_variable | n\_missing | complete\_rate | min                 | max                 | median              | n\_unique |
 |:---------------|-----------:|---------------:|:--------------------|:--------------------|:--------------------|----------:|
-| date\_time     |          0 |              1 | 2020-11-23 09:00:41 | 2021-12-24 15:35:44 | 2021-08-04 01:18:17 |     15017 |
+| date\_time     |          0 |              1 | 2020-11-23 09:00:41 | 2021-12-25 23:46:40 | 2021-08-04 01:27:02 |     15042 |
 
 **Variable type: Timespan**
 
 | skim\_variable | n\_missing | complete\_rate | min | max | median | n\_unique |
 |:---------------|-----------:|---------------:|----:|----:|-------:|----------:|
-| time           |          0 |              1 |   0 |  59 |     34 |        60 |
+| time           |          0 |              1 |   0 |  59 |     43 |        60 |
 
 We can see that the following columns are missing a lot of data and for
 us are most likely not useful anyways, so we will drop them
@@ -482,11 +482,11 @@ nested_modeltime_tbl
     ##   # A tibble: 5 x 5
     ##   package       .actual_data       .future_data      .splits   .modeltime_tables
     ##   <chr>         <list>             <list>            <list>    <list>           
-    ## 1 healthyR.data <tibble [368 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
-    ## 2 healthyR      <tibble [358 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
-    ## 3 healthyR.ts   <tibble [309 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
-    ## 4 healthyverse  <tibble [283 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
-    ## 5 healthyR.ai   <tibble [98 x 6]>  <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 1 healthyR.data <tibble [369 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 2 healthyR      <tibble [359 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 3 healthyR.ts   <tibble [310 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 4 healthyverse  <tibble [284 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 5 healthyR.ai   <tibble [99 x 6]>  <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
 
 ### Model Accuracy
 
@@ -498,80 +498,80 @@ nested_modeltime_tbl %>%
 
 | package       | .model\_id | .model\_desc               | .type |       mae |       mape |      mase |      smape |      rmse |       rsq |
 |:--------------|-----------:|:---------------------------|:------|----------:|-----------:|----------:|-----------:|----------:|----------:|
-| healthyR.data |          1 | ARIMA W XGBOOST ERRORS     | Test  | 0.8344096 |  87.209151 | 0.7127215 |  82.490681 | 1.1707748 | 0.2669175 |
-| healthyR.data |          2 | REGRESSION                 | Test  | 0.2895806 |  21.938139 | 0.2473489 |  21.951881 | 0.6982860 | 0.7355882 |
+| healthyR.data |          1 | ARIMA W XGBOOST ERRORS     | Test  | 0.8318612 |  89.711837 | 0.7243087 |  81.878305 | 1.1647283 | 0.2759554 |
+| healthyR.data |          2 | REGRESSION                 | Test  | 0.2634217 |  17.309213 | 0.2293635 |  17.649971 | 0.6995312 | 0.7346208 |
 | healthyR.data |          3 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
-| healthyR.data |          4 | ETSANN                     | Test  | 1.1683975 |  89.260086 | 0.9980015 | 140.363426 | 1.5705225 |        NA |
+| healthyR.data |          4 | ETSANN                     | Test  | 1.1682614 |  89.385626 | 1.0172153 | 140.001908 | 1.5701180 |        NA |
 | healthyR.data |          5 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
-| healthyR.data |          6 | LM                         | Test  | 0.2472811 |  15.139203 | 0.2112183 |  15.492683 | 0.7007614 | 0.7351764 |
-| healthyR.data |          7 | EARTH                      | Test  | 0.2322361 |   8.090650 | 0.1983674 |   8.642378 | 0.6666601 | 0.7500089 |
-| healthyR.data |          8 | NNAR                       | Test  | 0.2473988 |   9.055932 | 0.2113188 |   8.801045 | 0.6579906 | 0.7589942 |
-| healthyR.data |          9 | PROPHET W REGRESSORS       | Test  | 0.2429402 |  14.521507 | 0.2075105 |  14.751576 | 0.6919855 | 0.7431890 |
-| healthyR.data |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.5940837 |  41.706389 | 0.5074441 |  54.796816 | 0.9979535 | 0.7020046 |
-| healthyR.data |         11 | SEASONAL DECOMP REGRESSION | Test  | 1.0638749 | 135.332832 | 0.9087222 |  88.313085 | 1.4076658 | 0.3671044 |
-| healthyR.data |         12 | SEASONAL DECOMP ETSANN     | Test  | 1.4464233 | 139.577341 | 1.2354808 | 112.223422 | 1.8644008 | 0.0319087 |
-| healthyR.data |         13 | BATS                       | Test  | 1.1907719 |  97.979184 | 1.0171129 | 153.560691 | 1.5738660 | 0.0237371 |
-| healthyR.data |         14 | THETA METHOD               | Test  | 1.1874496 |  90.572511 | 1.0142752 | 147.130545 | 1.5862611 | 0.1193496 |
+| healthyR.data |          6 | LM                         | Test  | 0.2427791 |  13.887845 | 0.2113898 |  14.470120 | 0.7013614 | 0.7346767 |
+| healthyR.data |          7 | EARTH                      | Test  | 0.2325063 |   8.093450 | 0.2024452 |   8.646772 | 0.6673705 | 0.7492296 |
+| healthyR.data |          8 | NNAR                       | Test  | 0.2253009 |   7.362628 | 0.1961714 |   7.529571 | 0.6603858 | 0.7539653 |
+| healthyR.data |          9 | PROPHET W REGRESSORS       | Test  | 0.2356876 |  12.774055 | 0.2052152 |  13.220018 | 0.6931194 | 0.7424400 |
+| healthyR.data |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.5857438 |  40.223475 | 0.5100122 |  52.039562 | 0.9928445 | 0.7013812 |
+| healthyR.data |         11 | SEASONAL DECOMP REGRESSION | Test  | 1.1666142 | 148.618640 | 1.0157810 |  98.517963 | 1.4534915 | 0.3685523 |
+| healthyR.data |         12 | SEASONAL DECOMP ETSANN     | Test  | 1.4568355 | 147.131063 | 1.2684792 | 120.056826 | 1.8520772 | 0.0465315 |
+| healthyR.data |         13 | TBATS                      | Test  | 1.1062251 |  88.516546 | 0.9631997 | 136.382721 | 1.5094644 | 0.0580452 |
+| healthyR.data |         14 | THETA METHOD               | Test  | 1.1867740 |  90.877397 | 1.0333344 | 146.651394 | 1.5848434 | 0.1793224 |
 | healthyR.data |         15 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
-| healthyR      |          1 | ARIMA                      | Test  | 0.7094159 | 126.118624 | 0.7675952 |  97.258950 | 0.8564626 | 0.5598165 |
-| healthyR      |          2 | REGRESSION                 | Test  | 0.0979498 |   9.566760 | 0.1059826 |   9.238306 | 0.2192647 | 0.9642210 |
+| healthyR      |          1 | ARIMA                      | Test  | 0.6981714 | 118.004360 | 0.7697049 | 102.963673 | 0.8457326 | 0.4845599 |
+| healthyR      |          2 | REGRESSION                 | Test  | 0.0977990 |   9.671033 | 0.1078193 |   9.336070 | 0.2196600 | 0.9623653 |
 | healthyR      |          3 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
-| healthyR      |          4 | ETSANA                     | Test  | 0.8856528 | 130.159759 | 0.9582853 | 123.692507 | 1.1313670 | 0.0057824 |
+| healthyR      |          4 | ETSANA                     | Test  | 0.9049804 | 113.900179 | 0.9977032 | 147.050715 | 1.1617146 | 0.0045188 |
 | healthyR      |          5 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
-| healthyR      |          6 | LM                         | Test  | 0.1046013 |  12.069518 | 0.1131797 |  11.107306 | 0.2184849 | 0.9642302 |
-| healthyR      |          7 | EARTH                      | Test  | 0.0428612 |   2.509463 | 0.0463763 |   2.434048 | 0.1037121 | 0.9929778 |
-| healthyR      |          8 | NNAR                       | Test  | 0.0868708 |   7.305090 | 0.0939951 |   7.212170 | 0.1887841 | 0.9856825 |
-| healthyR      |          9 | PROPHET W REGRESSORS       | Test  | 0.1062165 |  13.659519 | 0.1149273 |  12.082391 | 0.2135152 | 0.9662171 |
-| healthyR      |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.3244646 |  50.968575 | 0.3510740 |  50.467984 | 0.4485793 | 0.9821062 |
-| healthyR      |         11 | SEASONAL DECOMP REGRESSION | Test  | 0.8635728 | 210.864190 | 0.9343946 |  90.512082 | 1.1905616 | 0.5472613 |
-| healthyR      |         12 | SEASONAL DECOMP ETSANN     | Test  | 1.1882570 | 216.192075 | 1.2857062 | 134.523641 | 1.4449079 | 0.0902893 |
-| healthyR      |         13 | TBATS                      | Test  | 0.8717406 | 137.823690 | 0.9432323 | 123.652070 | 1.1286227 | 0.0175148 |
-| healthyR      |         14 | THETA METHOD               | Test  | 0.8789854 | 124.469168 | 0.9510712 | 117.511003 | 1.1264428 | 0.1065119 |
+| healthyR      |          6 | LM                         | Test  | 0.1048112 |  12.080475 | 0.1155500 |  11.173927 | 0.2190003 | 0.9624232 |
+| healthyR      |          7 | EARTH                      | Test  | 0.0425740 |   2.520499 | 0.0469361 |   2.444381 | 0.1037397 | 0.9926233 |
+| healthyR      |          8 | NNAR                       | Test  | 0.1158123 |   8.526024 | 0.1276782 |   8.013307 | 0.2288077 | 0.9849301 |
+| healthyR      |          9 | PROPHET W REGRESSORS       | Test  | 0.1067117 |  13.583793 | 0.1176452 |  12.207486 | 0.2140924 | 0.9645524 |
+| healthyR      |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.3209990 |  45.433713 | 0.3538881 |  50.130721 | 0.4464483 | 0.9816653 |
+| healthyR      |         11 | SEASONAL DECOMP REGRESSION | Test  | 0.9832594 | 213.934576 | 1.0840025 | 103.402290 | 1.2882648 | 0.5104447 |
+| healthyR      |         12 | SEASONAL DECOMP ETSANN     | Test  | 1.2429223 | 216.555293 | 1.3702700 | 128.875222 | 1.5177000 | 0.0976841 |
+| healthyR      |         13 | TBATS                      | Test  | 0.8925912 |  97.147789 | 0.9840445 | 139.924353 | 1.1753504 | 0.0148081 |
+| healthyR      |         14 | THETA METHOD               | Test  | 0.8899463 | 104.596050 | 0.9811287 | 132.888358 | 1.1586299 | 0.2438464 |
 | healthyR      |         15 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
-| healthyR.ts   |          1 | ARIMA                      | Test  | 0.9473363 |  88.252422 | 0.6631747 |  99.513611 | 1.1473765 | 0.5702313 |
-| healthyR.ts   |          2 | REGRESSION                 | Test  | 0.1371016 |   8.012525 | 0.0959768 |   8.176585 | 0.3321708 | 0.9493279 |
+| healthyR.ts   |          1 | ARIMA                      | Test  | 0.9333371 |  92.644078 | 0.6724847 | 103.618970 | 1.1391947 | 0.3919554 |
+| healthyR.ts   |          2 | REGRESSION                 | Test  | 0.1370902 |   8.202538 | 0.0987757 |   8.346647 | 0.3326572 | 0.9406978 |
 | healthyR.ts   |          3 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
-| healthyR.ts   |          4 | ETSANA                     | Test  | 1.1457592 |  97.419252 | 0.8020790 | 124.152439 | 1.3761227 | 0.0724982 |
+| healthyR.ts   |          4 | ETSANA                     | Test  | 1.2518900 |  99.218142 | 0.9020074 | 156.117443 | 1.4992666 | 0.0681040 |
 | healthyR.ts   |          5 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
-| healthyR.ts   |          6 | LM                         | Test  | 0.1363177 |   7.830992 | 0.0954280 |   7.981967 | 0.3292544 | 0.9494862 |
-| healthyR.ts   |          7 | EARTH                      | Test  | 0.1263663 |   5.812725 | 0.0884617 |   5.617368 | 0.2208314 | 0.9759540 |
-| healthyR.ts   |          8 | NNAR                       | Test  | 0.2044650 |  11.654252 | 0.1431340 |  10.261635 | 0.3821657 | 0.9425144 |
-| healthyR.ts   |          9 | PROPHET W REGRESSORS       | Test  | 0.1374253 |   8.461231 | 0.0962034 |   8.550384 | 0.3233117 | 0.9517050 |
-| healthyR.ts   |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.5647519 |  38.295682 | 0.3953498 |  48.849248 | 0.7224456 | 0.9575805 |
-| healthyR.ts   |         11 | SEASONAL DECOMP REGRESSION | Test  | 1.0297995 | 154.846724 | 0.7209024 |  86.420394 | 1.2795695 | 0.5261834 |
-| healthyR.ts   |         12 | SEASONAL DECOMP ETSANN     | Test  | 1.5561179 | 195.264994 | 1.0893471 | 143.386879 | 1.7965599 | 0.0528566 |
-| healthyR.ts   |         13 | TBATS                      | Test  | 1.3791396 | 101.367324 | 0.9654549 | 164.127796 | 1.6478918 | 0.0468839 |
-| healthyR.ts   |         14 | THETA METHOD               | Test  | 1.2221017 |  96.980549 | 0.8555218 | 132.990105 | 1.4867843 | 0.0445595 |
+| healthyR.ts   |          6 | LM                         | Test  | 0.1365240 |   8.077744 | 0.0983678 |   8.208251 | 0.3300747 | 0.9409013 |
+| healthyR.ts   |          7 | EARTH                      | Test  | 0.1277216 |   6.020738 | 0.0920255 |   5.828814 | 0.2263270 | 0.9697534 |
+| healthyR.ts   |          8 | NNAR                       | Test  | 0.1849470 |  10.454293 | 0.1332574 |   9.494255 | 0.3311032 | 0.9415123 |
+| healthyR.ts   |          9 | PROPHET W REGRESSORS       | Test  | 0.1387493 |   8.849859 | 0.0999711 |   8.904964 | 0.3248625 | 0.9434443 |
+| healthyR.ts   |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.5570028 |  39.624156 | 0.4013297 |  51.175066 | 0.7187548 | 0.9501768 |
+| healthyR.ts   |         11 | SEASONAL DECOMP REGRESSION | Test  | 1.2297422 | 183.896361 | 0.8860495 | 100.381567 | 1.4700262 | 0.4634671 |
+| healthyR.ts   |         12 | SEASONAL DECOMP ETSANN     | Test  | 1.6010865 | 207.410517 | 1.1536091 | 136.132058 | 1.9276618 | 0.0591650 |
+| healthyR.ts   |         13 | TBATS                      | Test  | 1.4527475 | 113.985418 | 1.0467285 | 171.929992 | 1.7168733 | 0.0306729 |
+| healthyR.ts   |         14 | THETA METHOD               | Test  | 1.3267405 |  99.019155 | 0.9559384 | 186.023814 | 1.6086331 | 0.1565832 |
 | healthyR.ts   |         15 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
-| healthyverse  |          1 | ARIMA                      | Test  | 0.8018227 | 121.486283 | 0.8416989 | 132.868120 | 0.9774876 | 0.5305992 |
-| healthyverse  |          2 | REGRESSION                 | Test  | 0.1042130 |  14.575969 | 0.1093957 |  15.402259 | 0.1952363 | 0.9733430 |
+| healthyverse  |          1 | ARIMA                      | Test  | 0.7935832 | 122.374165 | 0.8809192 | 135.001149 | 0.9739605 | 0.3683272 |
+| healthyverse  |          2 | REGRESSION                 | Test  | 0.1094329 |  15.756079 | 0.1214763 |  16.076410 | 0.1972130 | 0.9692379 |
 | healthyverse  |          3 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
-| healthyverse  |          4 | ETSANA                     | Test  | 0.9328102 | 128.496833 | 0.9792008 | 154.747790 | 1.1611436 | 0.1210069 |
+| healthyverse  |          4 | ETSANA                     | Test  | 0.9701478 | 108.252828 | 1.0769152 | 162.257506 | 1.2413129 | 0.1084577 |
 | healthyverse  |          5 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
-| healthyverse  |          6 | LM                         | Test  | 0.1054437 |  13.421802 | 0.1106876 |  13.561322 | 0.1930213 | 0.9735200 |
-| healthyverse  |          7 | EARTH                      | Test  | 0.0686681 |   6.156379 | 0.0720831 |   6.021939 | 0.1283234 | 0.9913214 |
-| healthyverse  |          8 | NNAR                       | Test  | 0.0633731 |   4.174768 | 0.0665247 |   3.829717 | 0.1641641 | 0.9837175 |
-| healthyverse  |          9 | PROPHET W REGRESSORS       | Test  | 0.1049209 |  14.838605 | 0.1101388 |  15.662519 | 0.1865329 | 0.9750058 |
-| healthyverse  |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.4161013 |  46.882004 | 0.4367949 |  59.502585 | 0.5520332 | 0.9860103 |
-| healthyverse  |         11 | SEASONAL DECOMP REGRESSION | Test  | 0.8571827 | 270.122911 | 0.8998121 |  91.308068 | 1.0907527 | 0.6118827 |
-| healthyverse  |         12 | SEASONAL DECOMP ETSANN     | Test  | 1.2512023 | 400.443122 | 1.3134271 | 139.912797 | 1.4368445 | 0.0846983 |
-| healthyverse  |         13 | TBATS                      | Test  | 0.9890321 | 126.774350 | 1.0382187 | 149.260261 | 1.2516107 | 0.1361405 |
-| healthyverse  |         14 | THETA METHOD               | Test  | 0.9841145 |  99.707249 | 1.0330564 | 198.232566 | 1.2629543 | 0.1116020 |
+| healthyverse  |          6 | LM                         | Test  | 0.1105780 |  14.521642 | 0.1227474 |  14.329874 | 0.1948816 | 0.9694371 |
+| healthyverse  |          7 | EARTH                      | Test  | 0.0747488 |   6.914104 | 0.0829751 |   6.735813 | 0.1317480 | 0.9896227 |
+| healthyverse  |          8 | NNAR                       | Test  | 0.0583628 |   5.373471 | 0.0647858 |   5.085280 | 0.1284387 | 0.9885584 |
+| healthyverse  |          9 | PROPHET W REGRESSORS       | Test  | 0.1086324 |  15.893489 | 0.1205877 |  16.328234 | 0.1882722 | 0.9712560 |
+| healthyverse  |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.3899165 |  44.971429 | 0.4328279 |  56.633563 | 0.5338474 | 0.9836215 |
+| healthyverse  |         11 | SEASONAL DECOMP REGRESSION | Test  | 0.9183066 | 280.684616 | 1.0193687 | 102.089884 | 1.0958081 | 0.6165058 |
+| healthyverse  |         12 | SEASONAL DECOMP ETSANN     | Test  | 1.2582643 | 342.376714 | 1.3967397 | 140.432732 | 1.4929155 | 0.1010539 |
+| healthyverse  |         13 | TBATS                      | Test  | 1.1115103 | 163.429053 | 1.2338351 | 161.011615 | 1.3796584 | 0.0578527 |
+| healthyverse  |         14 | THETA METHOD               | Test  | 1.0065027 | 121.759331 | 1.1172711 | 166.553807 | 1.3080317 | 0.2867731 |
 | healthyverse  |         15 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
-| healthyR.ai   |          1 | ARIMA                      | Test  | 0.7230310 |  83.079586 | 0.7439689 |  95.044453 | 0.9673144 | 0.8926579 |
-| healthyR.ai   |          2 | REGRESSION                 | Test  | 0.1272089 |  13.011852 | 0.1308927 |  12.931762 | 0.2026833 | 0.9701840 |
+| healthyR.ai   |          1 | ARIMA                      | Test  | 0.6904964 |  81.297479 | 0.6981226 |  90.576671 | 0.9203049 | 0.8701996 |
+| healthyR.ai   |          2 | REGRESSION                 | Test  | 0.1302469 |  13.040255 | 0.1316854 |  12.772791 | 0.2013773 | 0.9645801 |
 | healthyR.ai   |          3 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
-| healthyR.ai   |          4 | ETSANN                     | Test  | 1.1253019 | 109.025109 | 1.1578890 | 178.450108 | 1.3729547 |        NA |
+| healthyR.ai   |          4 | ETSANN                     | Test  | 1.1437340 | 110.756340 | 1.1563660 | 177.700354 | 1.3945120 |        NA |
 | healthyR.ai   |          5 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
-| healthyR.ai   |          6 | LM                         | Test  | 0.1353374 |  15.021332 | 0.1392566 |  14.823270 | 0.2005577 | 0.9712305 |
-| healthyR.ai   |          7 | EARTH                      | Test  | 0.0630480 |   5.013870 | 0.0648738 |   5.065848 | 0.1304636 | 0.9874536 |
-| healthyR.ai   |          8 | NNAR                       | Test  | 0.3151872 |  35.130116 | 0.3243146 |  38.643428 | 0.4460215 | 0.8650750 |
-| healthyR.ai   |          9 | PROPHET W REGRESSORS       | Test  | 0.1383387 |  16.124832 | 0.1423448 |  15.988467 | 0.1974486 | 0.9725276 |
-| healthyR.ai   |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.4762960 |  74.776608 | 0.4900888 |  68.042358 | 0.6381183 | 0.8411002 |
-| healthyR.ai   |         11 | SEASONAL DECOMP REGRESSION | Test  | 0.9479534 | 184.872357 | 0.9754048 |  88.581713 | 1.2858800 | 0.4455401 |
-| healthyR.ai   |         12 | SEASONAL DECOMP ETSANN     | Test  | 1.4456123 | 226.263002 | 1.4874751 | 146.458574 | 1.7082715 | 0.0706831 |
-| healthyR.ai   |         13 | TBATS                      | Test  | 1.1669377 | 136.010755 | 1.2007305 | 167.051872 | 1.3989191 | 0.1684381 |
-| healthyR.ai   |         14 | THETA METHOD               | Test  | 0.9704768 |  94.752340 | 0.9985804 | 144.705752 | 1.2132795 | 0.0265122 |
+| healthyR.ai   |          6 | LM                         | Test  | 0.1409530 |  15.675764 | 0.1425098 |  15.369925 | 0.2031988 | 0.9656896 |
+| healthyR.ai   |          7 | EARTH                      | Test  | 0.0570039 |   4.766543 | 0.0576335 |   4.781917 | 0.1179633 | 0.9876230 |
+| healthyR.ai   |          8 | NNAR                       | Test  | 0.2352826 |  25.949412 | 0.2378811 |  26.576457 | 0.3808391 | 0.8728130 |
+| healthyR.ai   |          9 | PROPHET W REGRESSORS       | Test  | 0.1457649 |  17.194558 | 0.1473748 |  16.860665 | 0.2010514 | 0.9672314 |
+| healthyR.ai   |         10 | PROPHET W XGBOOST ERRORS   | Test  | 0.3656342 |  55.711470 | 0.3696725 |  56.259350 | 0.5668737 | 0.8494032 |
+| healthyR.ai   |         11 | SEASONAL DECOMP REGRESSION | Test  | 1.0037176 | 183.456402 | 1.0148031 |  89.595953 | 1.3440469 | 0.4426614 |
+| healthyR.ai   |         12 | SEASONAL DECOMP ETSANN     | Test  | 1.4662801 | 220.081740 | 1.4824744 | 143.910460 | 1.7519737 | 0.0977916 |
+| healthyR.ai   |         13 | TBATS                      | Test  | 1.2460431 | 146.884473 | 1.2598051 | 169.058531 | 1.4893303 | 0.0883486 |
+| healthyR.ai   |         14 | THETA METHOD               | Test  | 1.0085716 |  96.087834 | 1.0197107 | 169.729517 | 1.2457230 | 0.0731729 |
 | healthyR.ai   |         15 | NULL                       | NA    |        NA |         NA |        NA |         NA |        NA |        NA |
 
 ### Plot Models
@@ -609,11 +609,11 @@ best_nested_modeltime_tbl %>%
     ##   # A tibble: 5 x 10
     ##   package      .model_id .model_desc .type    mae  mape   mase smape  rmse   rsq
     ##   <chr>            <int> <chr>       <chr>  <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl>
-    ## 1 healthyR.da~         8 NNAR        Test  0.247   9.06 0.211   8.80 0.658 0.759
-    ## 2 healthyR             7 EARTH       Test  0.0429  2.51 0.0464  2.43 0.104 0.993
-    ## 3 healthyR.ts          7 EARTH       Test  0.126   5.81 0.0885  5.62 0.221 0.976
-    ## 4 healthyverse         7 EARTH       Test  0.0687  6.16 0.0721  6.02 0.128 0.991
-    ## 5 healthyR.ai          7 EARTH       Test  0.0630  5.01 0.0649  5.07 0.130 0.987
+    ## 1 healthyR.da~         8 NNAR        Test  0.225   7.36 0.196   7.53 0.660 0.754
+    ## 2 healthyR             7 EARTH       Test  0.0426  2.52 0.0469  2.44 0.104 0.993
+    ## 3 healthyR.ts          7 EARTH       Test  0.128   6.02 0.0920  5.83 0.226 0.970
+    ## 4 healthyverse         8 NNAR        Test  0.0584  5.37 0.0648  5.09 0.128 0.989
+    ## 5 healthyR.ai          7 EARTH       Test  0.0570  4.77 0.0576  4.78 0.118 0.988
 
 ``` r
 best_nested_modeltime_tbl %>%
@@ -653,11 +653,11 @@ nested_modeltime_refit_tbl
     ##   # A tibble: 5 x 5
     ##   package       .actual_data       .future_data      .splits   .modeltime_tables
     ##   <chr>         <list>             <list>            <list>    <list>           
-    ## 1 healthyR.data <tibble [368 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
-    ## 2 healthyR      <tibble [358 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
-    ## 3 healthyR.ts   <tibble [309 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
-    ## 4 healthyverse  <tibble [283 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
-    ## 5 healthyR.ai   <tibble [98 x 6]>  <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 1 healthyR.data <tibble [369 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 2 healthyR      <tibble [359 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 3 healthyR.ts   <tibble [310 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 4 healthyverse  <tibble [284 x 6]> <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
+    ## 5 healthyR.ai   <tibble [99 x 6]>  <tibble [28 x 6]> <split [~ <mdl_time_tbl [1~
 
 ``` r
 nested_modeltime_refit_tbl %>%
