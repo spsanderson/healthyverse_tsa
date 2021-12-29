@@ -583,7 +583,7 @@ nested_modeltime_tbl %>%
   group_by(package) %>%
   plot_modeltime_forecast(
     .interactive = FALSE,
-    .conf_interval_alpha = .2,
+    .conf_interval_show  = FALSE,
     .facet_scales = "free"
   ) +
   theme_minimal() +
