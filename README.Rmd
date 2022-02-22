@@ -604,6 +604,7 @@ best_nested_modeltime_tbl %>%
 
 best_nested_modeltime_tbl %>%
   extract_nested_test_forecast() %>%
+  filter(!is.na(.model_id)) %>%
   group_by(package) %>%
   plot_modeltime_forecast(
     .interactive = FALSE,
