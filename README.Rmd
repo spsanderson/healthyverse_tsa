@@ -337,7 +337,6 @@ recipe_base <- recipe(
   ) %>%
   step_mutate(yr = lubridate::year(date)) %>%
   step_harmonic(yr, frequency = 365/12, cycle_size = 1) %>%
-  #step_rm(yr) %>%
   step_hai_fourier(value_trans, scale_type = "sincos", period = 365/12, order = 1) %>%
   step_lag(value_trans, lag = 1) %>%
   step_impute_knn(contains("lag_"))
