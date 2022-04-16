@@ -10,7 +10,7 @@ first_30_days_tbl <- downloads_tbl %>%
     mutate(rec_no = row_number()) %>%
     ungroup() %>%
     mutate(package = as.factor(package)) %>%
-    filter(rec_no <= 30)
+    filter(rec_no <= 90)
 
 plot_time_series(
     .data = first_30_days_tbl,
