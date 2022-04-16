@@ -21,7 +21,7 @@ source("00_scripts/helper_functions.R")
 source("00_scripts/data_manipulation_functions.R")
 source("00_scripts/ts_decomp.R")
 
-n_cores = detectCores() - 1
+n_cores = 2
 ```
 
 ## Get Data
@@ -536,16 +536,15 @@ wflw_xgboost <- workflow() %>%
 
 ### Nested Modeltime Tables
 ```{r nested_modeltime_tables}
-#parallel_start(n_cores)
+parallel_start(n_cores)
 nested_modeltime_tbl <- modeltime_nested_fit(
   # Nested Data
   nested_data = nested_data_tbl,
-  # control = control_nested_fit(
-  #   verbose = TRUE,
-  #   allow_par = TRUE,
-  #   cores = n_cores
-  # ),
-  
+   control = control_nested_fit(
+     verbose = TRUE,
+     allow_par = TRUE,
+     cores = n_cores
+   ),
   # Add workflows
   wflw_arima_boosted,
   wflw_auto_arima,
@@ -563,7 +562,7 @@ nested_modeltime_tbl <- modeltime_nested_fit(
   wflw_theta,
   wflw_xgboost
 )
-# parallel_stop()
+parallel_stop()
 
 nested_modeltime_tbl
 ```
@@ -619,7 +618,7 @@ best_nested_modeltime_tbl %>%
 Now that we have the best models, we can make our future forecasts.
 
 ```{r refit}
-# parallel_start(n_cores)
+parallel_start(n_cores)
 nested_modeltime_refit_tbl <- best_nested_modeltime_tbl %>%
   modeltime_nested_refit(
     control = control_nested_refit(
@@ -628,7 +627,7 @@ nested_modeltime_refit_tbl <- best_nested_modeltime_tbl %>%
       cores = n_cores
     )
   )
-# parallel_stop()
+parallel_stop()
 
 nested_modeltime_refit_tbl
 
