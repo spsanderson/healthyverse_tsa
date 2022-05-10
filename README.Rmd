@@ -358,18 +358,6 @@ wflw_auto_arima <- workflow() %>%
   add_recipe(recipe = recipe_base) %>%
   add_model(model_spec_arima_no_boost)
 
-# Boosted Auto ARIMA ------------------------------------------------------
-
-model_spec_arima_boosted <- arima_boost(
-  min_n = 2
-  , learn_rate = 0.015
-) %>%
-  set_engine(engine = "auto_arima_xgboost")
-
-wflw_arima_boosted <- workflow() %>%
-  add_recipe(recipe = recipe_base) %>%
-  add_model(model_spec_arima_boosted)
-
 # NNETAR ------------------------------------------------------------------
 
 model_spec_nnetar <- nnetar_reg(
@@ -423,7 +411,6 @@ nested_modeltime_tbl <- modeltime_nested_fit(
      allow_par = FALSE
    ),
   # Add workflows
-  wflw_arima_boosted,
   wflw_auto_arima,
   wflw_glm,
   wflw_lm,
