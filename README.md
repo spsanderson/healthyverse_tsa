@@ -1,7 +1,7 @@
 Time Series Analysis and Modeling of the Healthyverse Packages
 ================
 Steven P. Sanderson II, MPH - Data Scientist/IT Manager
-19 May, 2022
+20 May, 2022
 
 ## Get Data
 
@@ -356,32 +356,32 @@ nested_modeltime_tbl %>%
 | healthyR.data |         2 | NULL        | NA    |        NA |        NA |        NA |        NA |        NA |        NA |
 | healthyR.data |         3 | LM          | Test  | 0.0815802 | 11.895946 | 0.0532149 | 11.306671 | 0.0982853 | 0.9913896 |
 | healthyR.data |         4 | EARTH       | Test  | 0.0790435 | 12.931128 | 0.0515602 | 10.873071 | 0.1142193 | 0.9885658 |
-| healthyR.data |         5 | NNAR        | Test  | 0.0676358 |  5.181998 | 0.0441190 |  4.677000 | 0.2297582 | 0.9641452 |
+| healthyR.data |         5 | NNAR        | Test  | 0.0654683 |  5.921339 | 0.0427051 |  5.435025 | 0.2160665 | 0.9657669 |
 | healthyR      |         1 | REGRESSION  | Test  | 0.0457205 | 15.670715 | 0.0349383 | 12.894597 | 0.0520252 | 0.9978446 |
 | healthyR      |         2 | NULL        | NA    |        NA |        NA |        NA |        NA |        NA |        NA |
 | healthyR      |         3 | LM          | Test  | 0.0465122 | 16.333149 | 0.0355433 | 13.253508 | 0.0531457 | 0.9978585 |
 | healthyR      |         4 | EARTH       | Test  | 0.0170752 |  3.009351 | 0.0130484 |  2.945411 | 0.0287229 | 0.9995692 |
-| healthyR      |         5 | NNAR        | Test  | 0.0400378 |  3.389680 | 0.0305958 |  3.390105 | 0.0892513 | 0.9939330 |
+| healthyR      |         5 | NNAR        | Test  | 0.0478675 |  4.193747 | 0.0365790 |  4.178191 | 0.0867070 | 0.9952773 |
 | healthyR.ts   |         1 | REGRESSION  | Test  | 0.0478146 | 17.488508 | 0.0360715 | 11.733779 | 0.0586039 | 0.9973142 |
 | healthyR.ts   |         2 | NULL        | NA    |        NA |        NA |        NA |        NA |        NA |        NA |
 | healthyR.ts   |         3 | LM          | Test  | 0.0482184 | 18.560231 | 0.0363761 | 12.508681 | 0.0584167 | 0.9974077 |
 | healthyR.ts   |         4 | EARTH       | Test  | 0.0169177 |  3.704625 | 0.0127628 |  3.583436 | 0.0187387 | 0.9997594 |
-| healthyR.ts   |         5 | NNAR        | Test  | 0.0187172 |  5.721941 | 0.0141203 |  5.174817 | 0.0299635 | 0.9992258 |
+| healthyR.ts   |         5 | NNAR        | Test  | 0.0151372 |  2.767849 | 0.0114195 |  2.654768 | 0.0257242 | 0.9995775 |
 | healthyverse  |         1 | REGRESSION  | Test  | 0.0406284 | 10.550398 | 0.0345789 |  9.579179 | 0.0486600 | 0.9977954 |
 | healthyverse  |         2 | NULL        | NA    |        NA |        NA |        NA |        NA |        NA |        NA |
 | healthyverse  |         3 | LM          | Test  | 0.0395003 | 10.426137 | 0.0336187 |  9.291932 | 0.0476391 | 0.9978235 |
 | healthyverse  |         4 | EARTH       | Test  | 0.0090854 |  2.678500 | 0.0077326 |  2.705725 | 0.0129160 | 0.9998473 |
-| healthyverse  |         5 | NNAR        | Test  | 0.0075577 |  1.611333 | 0.0064324 |  1.590808 | 0.0147626 | 0.9997966 |
+| healthyverse  |         5 | NNAR        | Test  | 0.0067354 |  1.318547 | 0.0057325 |  1.299695 | 0.0128784 | 0.9998571 |
 | healthyR.ai   |         1 | REGRESSION  | Test  | 0.0438006 |  7.737936 | 0.0331360 |  7.381359 | 0.0611321 | 0.9963700 |
 | healthyR.ai   |         2 | NULL        | NA    |        NA |        NA |        NA |        NA |        NA |        NA |
 | healthyR.ai   |         3 | LM          | Test  | 0.0440842 |  7.935210 | 0.0333506 |  7.550859 | 0.0624085 | 0.9963929 |
 | healthyR.ai   |         4 | EARTH       | Test  | 0.0162121 |  2.857201 | 0.0122647 |  2.808082 | 0.0193752 | 0.9997234 |
-| healthyR.ai   |         5 | NNAR        | Test  | 0.0185579 |  1.731310 | 0.0140394 |  1.709345 | 0.0494273 | 0.9987196 |
+| healthyR.ai   |         5 | NNAR        | Test  | 0.0240720 |  1.713819 | 0.0182109 |  1.665860 | 0.0690851 | 0.9975411 |
 | TidyDensity   |         1 | REGRESSION  | Test  | 0.1226356 | 54.426556 | 0.0824110 | 36.270431 | 0.1416803 | 0.9948989 |
 | TidyDensity   |         2 | NULL        | NA    |        NA |        NA |        NA |        NA |        NA |        NA |
 | TidyDensity   |         3 | LM          | Test  | 0.1561323 | 68.557649 | 0.1049208 | 42.456505 | 0.1771358 | 0.9931595 |
 | TidyDensity   |         4 | EARTH       | Test  | 0.0135525 |  1.414239 | 0.0091073 |  1.413215 | 0.0190109 | 0.9996901 |
-| TidyDensity   |         5 | NNAR        | Test  | 0.3369911 | 83.302703 | 0.2264577 | 62.433093 | 0.4249707 | 0.9347106 |
+| TidyDensity   |         5 | NNAR        | Test  | 0.3520598 | 67.866321 | 0.2365839 | 62.441558 | 0.4443115 | 0.9281614 |
 
 ### Plot Models
 
@@ -421,7 +421,7 @@ best_nested_modeltime_tbl %>%
     ## 1 healthyR~         1 REGRESSION  Test  0.0768  11.4  0.0501  11.0  0.0940 0.993
     ## 2 healthyR          4 EARTH       Test  0.0171   3.01 0.0130   2.95 0.0287 1.00 
     ## 3 healthyR~         4 EARTH       Test  0.0169   3.70 0.0128   3.58 0.0187 1.00 
-    ## 4 healthyv~         4 EARTH       Test  0.00909  2.68 0.00773  2.71 0.0129 1.00 
+    ## 4 healthyv~         5 NNAR        Test  0.00674  1.32 0.00573  1.30 0.0129 1.00 
     ## 5 healthyR~         4 EARTH       Test  0.0162   2.86 0.0123   2.81 0.0194 1.00 
     ## 6 TidyDens~         4 EARTH       Test  0.0136   1.41 0.00911  1.41 0.0190 1.00
 
