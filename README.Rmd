@@ -343,6 +343,9 @@ recipe_base <- recipe(
 
 recipe_base
 
+recipe_date <- recipe_base %>%
+    step_mutate(date = as.numeric(date))
+
 ```
 
 ### Models
@@ -386,7 +389,7 @@ model_spec_glm <- linear_reg(
   set_engine("glmnet")
 
 wflw_glm <- workflow() %>%
-  add_recipe(recipe = recipe_base) %>%
+  add_recipe(recipe = recipe_date) %>%
   add_model(model_spec_glm)
 
 # MARS --------------------------------------------------------------------
