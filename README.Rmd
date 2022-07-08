@@ -153,7 +153,8 @@ plot_stl_diagnostics(
   .data = ts_downloads_tbl(
     .data = data_tbl,
     .by_time = "day"
-    ),
+    ) %>%
+      filter(date >= subtract_time(md, "1 year")),
   .date_var = date,
   .value = log1p(value),
   .interactive = FALSE
@@ -166,8 +167,9 @@ plot_stl_diagnostics(
 plot_stl_diagnostics(
   .data = ts_downloads_tbl(
     .data = data_tbl,
-    .by_time = "month"
-    ),
+    .by_time = "day"
+    ) %>%
+      filter(date >= subtract_time(md, "1 year")),
   .date_var = date,
   .value = log1p(value),
   .interactive = FALSE
@@ -181,7 +183,8 @@ plot_seasonal_diagnostics(
     .data = ts_downloads_tbl(
     .data = data_tbl,
     .by_time = "day"
-  ),
+    ) %>%
+      filter(date >= subtract_time(md, "1 year")),
   .date_var = date,
   .value = log1p(value),
   .interactive = FALSE
@@ -195,7 +198,8 @@ plot_acf_diagnostics(
     .data = ts_downloads_tbl(
     .data = data_tbl,
     .by_time = "day"
-  ),
+    ) %>%
+      filter(date >= subtract_time(md, "1 year")),
   .date_var = date,
   .value = log1p(value),
   .interactive = FALSE
@@ -218,7 +222,8 @@ base_data <- ts_downloads_tbl(
   .data    = data_tbl,
   .by_time = "day",
   package
-)
+) %>%
+    filter(date >= subtract_time(md, "1 year"))
 ```
 
 Now we are going to do some basic pre-processing.
