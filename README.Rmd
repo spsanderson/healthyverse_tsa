@@ -21,7 +21,7 @@ source("00_scripts/helper_functions.R")
 source("00_scripts/data_manipulation_functions.R")
 source("00_scripts/ts_decomp.R")
 
-n_cores = 2
+n_cores = 7
 ```
 
 ## Get Data
@@ -223,7 +223,9 @@ base_data <- ts_downloads_tbl(
   .by_time = "day",
   package
 ) %>%
-    filter(date >= subtract_time(md, "1 year"))
+    filter(date >= subtract_time(md, "18 months")) %>%
+    mutate(package = factor(package)) %>%
+    select(package, date, value)
 ```
 
 Now we are going to do some basic pre-processing.
@@ -256,53 +258,6 @@ data_transformed_tbl <- data_liv_tbl %>%
   select(-value)
 ```
 
-Now that we have our full data set and saved our parameters we can create the full
-data set.
-
-```{r data_prepared_full_tbl}
-horizon         <- 4*7
-lag_period      <- 4*7
-rolling_periods <- c(7, 14, 28)
-
-data_prepared_full_tbl <- data_transformed_tbl %>%
-  group_by(package) %>%
-  
-  # Add future windows
-  bind_rows(
-    future_frame(., .date_var = date, .length_out = horizon)
-  ) %>%
-  
-  # Add autocorolated lags
-  tk_augment_lags(value_trans, .lags = lag_period) %>%
-  
-  # Add rolling features
-  tk_augment_slidify(
-    .value     = value_trans_lag28
-    , .f       = median
-    , .period  = rolling_periods
-    , .align   = "center"
-    , .partial = TRUE
-  ) %>%
-  
-  # Format columns
-  rename_with(.cols = contains("lag"), .fn = ~ str_c("lag_", .)) %>%
-  select(date, package, everything()) %>%
-  ungroup()
-
-data_prepared_full_tbl %>% 
-  group_by(package) %>% 
-  pivot_longer(-c(date, package)) %>% 
-  plot_time_series(
-    .date_var = date
-    , .value = value
-    , .color_var = name
-    , .smooth = FALSE
-    , .interactive = FALSE
-    , .facet_scales = "free"
-  ) +
-  theme_minimal() +
-  theme(legend.position = "bottom")
-```
 
 Since this is panel data we can follow one of two different modeling strategies. 
 We can search for a global model in the panel data or we can use nested forecasting
@@ -313,20 +268,34 @@ To do this we will use the `nest_timeseries` and `split_nested_timeseries` funct
 to create a nested `tibble`.
 
 ```{r nested_data}
-data_prepared_tbl <- data_prepared_full_tbl %>%
-  filter(!is.na(value_trans))
+horizon <- 4*7
 
-forecast_tbl <- data_prepared_full_tbl %>%
-  filter(is.na(value_trans))
+nested_data_tbl <- data_transformed_tbl %>%
+    
+    # 1. Extending: We'll predict n days into the future.
+    extend_timeseries(
+        .id_var        = package,
+        .date_var      = date,
+        .length_future = horizon
+    ) %>%
+    
+    # 2. Nesting: We'll group by id, and create a future dataset
+    #    that forecasts n days of extended data and
+    #    an actual dataset that contains n*2 days
+    nest_timeseries(
+        .id_var        = package,
+        .length_future = horizon
+        #.length_actual = horizon*2
+    ) %>%
+    
+   # 3. Splitting: We'll take the actual data and create splits
+   #    for accuracy and confidence interval estimation of n das (test)
+   #    and the rest is training data
+    split_nested_timeseries(
+        .length_test = horizon
+    )
 
-nested_data_tbl <- data_prepared_tbl %>%
-  nest_timeseries(
-    .id_var = package
-    , .length_future = horizon
-  ) %>%
-  split_nested_timeseries(
-    .length_test = horizon
-  )
+nested_data_tbl
 ```
 
 Now it is time to make some recipes and models using the modeltime workflow.
@@ -337,14 +306,9 @@ Now it is time to make some recipes and models using the modeltime workflow.
 
 ```{r rec_obj}
 recipe_base <- recipe(
-  value_trans ~ .
+  value_trans ~ date
   , data = extract_nested_test_split(nested_data_tbl)
-  ) %>%
-  step_mutate(yr = lubridate::year(date)) %>%
-  step_harmonic(yr, frequency = 365/12, cycle_size = 1) %>%
-  step_hai_fourier(value_trans, scale_type = "sincos", period = 365/12, order = 1) %>%
-  step_lag(value_trans, lag = 1) %>%
-  step_impute_knn(contains("lag_"))
+  )
 
 recipe_base
 
@@ -464,7 +428,7 @@ best_nested_modeltime_tbl %>%
 
 best_nested_modeltime_tbl %>%
   extract_nested_test_forecast() %>%
-  filter(!is.na(.model_id)) %>%
+  #filter(!is.na(.model_id)) %>%
   group_by(package) %>%
   plot_modeltime_forecast(
     .interactive = FALSE,
@@ -482,12 +446,9 @@ Now that we have the best models, we can make our future forecasts.
 ```{r refit}
 
 nested_modeltime_refit_tbl <- best_nested_modeltime_tbl %>%
-  modeltime_nested_refit(
-    control = control_nested_refit(
-      verbose = TRUE, 
-      allow_par = FALSE
+    modeltime_nested_refit(
+        control = control_nested_refit(verbose = TRUE)
     )
-  )
 
 
 nested_modeltime_refit_tbl
