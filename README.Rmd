@@ -169,7 +169,7 @@ plot_stl_diagnostics(
 plot_stl_diagnostics(
   .data = ts_downloads_tbl(
     .data = data_tbl,
-    .by_time = "day"
+    .by_time = "month"
     ) %>%
       filter(date >= subtract_time(md, "1 year")),
   .date_var = date,
