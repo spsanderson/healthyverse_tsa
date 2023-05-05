@@ -2,7 +2,7 @@
 title: "Time Series Analysis and Nested Modeling of the Healthyverse Packages"
 output: github_document
 always_allow_html: true
-author: "Steven P. Sanderson II, MPH - Data Scientist/IT Manager"
+author: "Steven P. Sanderson II, MPH - Date: "
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 ---
 
