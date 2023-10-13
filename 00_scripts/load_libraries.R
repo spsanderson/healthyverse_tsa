@@ -14,5 +14,6 @@ pacman::p_load(
     "countrycode",
     "fs",
     "workflowsets",
-    "parallel"
+    "parallel",
+    "glmnet"
 )
