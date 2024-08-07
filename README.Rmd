@@ -381,7 +381,7 @@ nested_modeltime_tbl <- modeltime_nested_fit(
   wflw_nnetar
 )
 
-nested_modeltime_tbl
+nested_modeltime_tbl <- nested_modeltime_tbl[!is.na(nested_modeltime_tbl$package),]
 ```
 
 ### Model Accuracy
