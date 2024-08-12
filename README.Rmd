@@ -118,8 +118,9 @@ ts_downloads_tbl(
   summarise_by_time(
     .date_var = date,
     .by = "day",
-    Actual = log1p(sum(value, na.rm = TRUE))
+    Actual = (sum(value, na.rm = TRUE))
   ) %>%
+    mutate(Actual = cumsum(Actual)) %>%
   tk_augment_differences(.value = Actual, .differences = 1) %>%
   tk_augment_differences(.value = Actual, .differences = 2) %>%
   rename(velocity = contains("_diff1")) %>%
@@ -130,6 +131,7 @@ ts_downloads_tbl(
   mutate(name = as_factor(name)) %>%
   ggplot(aes(x = date, y = value, group = name)) +
   geom_point(alpha = .2) +
+  geom_line() +
   geom_vline(
     data = pkg_tbl
     , aes(xintercept = date, color = package)
