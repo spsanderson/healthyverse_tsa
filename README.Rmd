@@ -144,7 +144,7 @@ ts_downloads_tbl(
     title = "Total Downloads: Trend, Velocity, and Accelertion",
     subtitle = "Vertical Lines Indicate a CRAN Release date for a package.",
     x = "Date",
-    y = "log1p(Values)",
+    y = "Values",
     color = ""
   ) +
   theme(legend.position = "bottom")
