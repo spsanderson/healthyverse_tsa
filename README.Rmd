@@ -121,10 +121,9 @@ ts_downloads_tbl(
     Actual = (sum(value, na.rm = TRUE))
   ) %>%
     mutate(Actual = cumsum(Actual)) %>%
-  tk_augment_differences(.value = Actual, .differences = 1) %>%
-  tk_augment_differences(.value = Actual, .differences = 2) %>%
-  rename(velocity = contains("_diff1")) %>%
-  rename(acceleration = contains("_diff2")) %>%
+  tk_augment_differences(.value = Actual, .lags = c(1, 2)) %>%
+  rename(velocity = contains("_lag1")) %>%
+  rename(acceleration = contains("_lag2")) %>%
   pivot_longer(-date) %>%
   filter(date >= subtract_time(md, "1 year")) %>%
   mutate(name = str_to_title(name)) %>%
