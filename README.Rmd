@@ -221,6 +221,17 @@ a `tibble` that is aggregated by the day and package, as we are going to be inte
 in forecasting the next 4 weeks or 28 days for each package. First lets get our base data.
 
 ```{r base_data_frame, echo=FALSE}
+ts_downloads_tbl(data_tbl) |> 
+    plot_time_series_regression(
+        date, 
+        (value) ~ date + lag(value, 1) + lag(value, 7) + lag(value, 14) 
+        + lag(value, 21) + lag(value, 28) + lag(value, 35) 
+        + lag(value, 42) + lag(value, 49) + month(date, label = TRUE) 
+        + fourier_vec(date, type = "sin", K = 1, period = 7) 
+        + fourier_vec(date, type = "cos", K = 1, period = 7), 
+        .show_summary = TRUE
+    )
+
 base_data <- ts_downloads_tbl(
   .data    = data_tbl,
   .by_time = "day",
