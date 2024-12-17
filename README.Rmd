@@ -400,6 +400,7 @@ nested_modeltime_tbl <- nested_modeltime_tbl[!is.na(nested_modeltime_tbl$package
 ```{r accuracy}
 nested_modeltime_tbl %>%
   extract_nested_test_accuracy() %>%
+  filter(!is.na(package)) %>%
   knitr::kable()
 ```
 
