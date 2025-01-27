@@ -1,7 +1,7 @@
 Time Series Analysis and Nested Modeling of the Healthyverse Packages
 ================
 Steven P. Sanderson II, MPH - Date:
-24 January, 2025
+27 January, 2025
 
 This analysis follows a *Nested Modeltime Workflow*.
 
@@ -11,7 +11,7 @@ This analysis follows a *Nested Modeltime Workflow*.
 glimpse(downloads_tbl)
 ```
 
-    ## Rows: 128,393
+    ## Rows: 128,642
     ## Columns: 11
     ## $ date      <date> 2020-11-23, 2020-11-23, 2020-11-23, 2020-11-23, 2020-11-23,…
     ## $ time      <Period> 15H 36M 55S, 11H 26M 39S, 23H 34M 44S, 18H 39M 32S, 9H 0M…
@@ -25,8 +25,8 @@ glimpse(downloads_tbl)
     ## $ country   <chr> "US", "US", "US", "GB", "US", "US", "DE", "HK", "JP", "US", …
     ## $ ip_id     <int> 2069, 2804, 78827, 27595, 90474, 90474, 42435, 74, 7655, 638…
 
-The last day in the data set is 2025-01-22 22:49:45, the file was
-birthed on: 2024-08-07 07:35:44, and at report knit time is -4043.23
+The last day in the data set is 2025-01-25 23:33:51, the file was
+birthed on: 2024-08-07 07:35:44, and at report knit time is -4115.97
 hours old. Happy analyzing!
 
 Now that we have our data lets take a look at it using the `skimr`
@@ -39,7 +39,7 @@ skim(downloads_tbl)
 |                                                  |               |
 |:-------------------------------------------------|:--------------|
 | Name                                             | downloads_tbl |
-| Number of rows                                   | 128393        |
+| Number of rows                                   | 128642        |
 | Number of columns                                | 11            |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   |               |
 | Column type frequency:                           |               |
@@ -57,37 +57,37 @@ Data summary
 
 | skim_variable | n_missing | complete_rate | min | max | empty | n_unique | whitespace |
 |:--------------|----------:|--------------:|----:|----:|------:|---------:|-----------:|
-| r_version     |     91521 |          0.29 |   5 |   5 |     0 |       45 |          0 |
-| r_arch        |     91521 |          0.29 |   3 |   7 |     0 |        5 |          0 |
-| r_os          |     91521 |          0.29 |   7 |  15 |     0 |       21 |          0 |
+| r_version     |     91737 |          0.29 |   5 |   5 |     0 |       45 |          0 |
+| r_arch        |     91737 |          0.29 |   3 |   7 |     0 |        5 |          0 |
+| r_os          |     91737 |          0.29 |   7 |  15 |     0 |       21 |          0 |
 | package       |         0 |          1.00 |   7 |  13 |     0 |        8 |          0 |
 | version       |         0 |          1.00 |   5 |  17 |     0 |       60 |          0 |
-| country       |     10870 |          0.92 |   2 |   2 |     0 |      160 |          0 |
+| country       |     10888 |          0.92 |   2 |   2 |     0 |      160 |          0 |
 
 **Variable type: Date**
 
 | skim_variable | n_missing | complete_rate | min | max | median | n_unique |
 |:---|---:|---:|:---|:---|:---|---:|
-| date | 0 | 1 | 2020-11-23 | 2025-01-22 | 2023-04-23 | 1522 |
+| date | 0 | 1 | 2020-11-23 | 2025-01-25 | 2023-04-24 | 1525 |
 
 **Variable type: numeric**
 
 | skim_variable | n_missing | complete_rate | mean | sd | p0 | p25 | p50 | p75 | p100 | hist |
 |:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|:---|
-| size | 0 | 1 | 1142722.82 | 1532308.25 | 355 | 14701 | 260378 | 2367889 | 5677952 | ▇▁▂▁▁ |
-| ip_id | 0 | 1 | 10462.58 | 18466.76 | 1 | 320 | 3098 | 11961 | 209747 | ▇▁▁▁▁ |
+| size | 0 | 1 | 1142745.16 | 1532140.24 | 355 | 14701 | 260378 | 2367895 | 5677952 | ▇▁▂▁▁ |
+| ip_id | 0 | 1 | 10464.38 | 18484.29 | 1 | 328 | 3091 | 11949 | 209747 | ▇▁▁▁▁ |
 
 **Variable type: POSIXct**
 
 | skim_variable | n_missing | complete_rate | min | max | median | n_unique |
 |:---|---:|---:|:---|:---|:---|---:|
-| date_time | 0 | 1 | 2020-11-23 09:00:41 | 2025-01-22 22:49:45 | 2023-04-23 17:59:32 | 77754 |
+| date_time | 0 | 1 | 2020-11-23 09:00:41 | 2025-01-25 23:33:51 | 2023-04-24 15:51:04 | 77926 |
 
 **Variable type: Timespan**
 
-| skim_variable | n_missing | complete_rate | min | max |     median | n_unique |
-|:--------------|----------:|--------------:|----:|----:|-----------:|---------:|
-| time          |         0 |             1 |   0 |  59 | 12H 6M 41S |       60 |
+| skim_variable | n_missing | complete_rate | min | max | median | n_unique |
+|:--------------|----------:|--------------:|----:|----:|-------:|---------:|
+| time          |         0 |             1 |   0 |  59 |     29 |       60 |
 
 We can see that the following columns are missing a lot of data and for
 us are most likely not useful anyways, so we will drop them
@@ -119,64 +119,64 @@ weeks or 28 days for each package. First lets get our base data.
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -156.04  -35.19   -9.66   27.45  803.35 
+    ## -155.89  -35.21   -9.62   27.28  804.39 
     ## 
     ## Coefficients:
     ##                                                      Estimate Std. Error
-    ## (Intercept)                                        -1.954e+02  7.809e+01
-    ## date                                                1.163e-02  4.139e-03
-    ## lag(value, 1)                                       1.233e-01  2.533e-02
-    ## lag(value, 7)                                       9.477e-02  2.626e-02
-    ## lag(value, 14)                                      1.098e-01  2.628e-02
-    ## lag(value, 21)                                      5.283e-02  2.644e-02
-    ## lag(value, 28)                                      6.599e-02  2.632e-02
-    ## lag(value, 35)                                      6.937e-02  2.643e-02
-    ## lag(value, 42)                                      5.052e-02  2.651e-02
-    ## lag(value, 49)                                      9.436e-02  2.638e-02
-    ## month(date, label = TRUE).L                        -1.206e+01  5.330e+00
-    ## month(date, label = TRUE).Q                         2.867e+00  5.195e+00
-    ## month(date, label = TRUE).C                        -1.204e+01  5.274e+00
-    ## month(date, label = TRUE)^4                        -6.910e+00  5.298e+00
-    ## month(date, label = TRUE)^5                        -1.325e+01  5.296e+00
-    ## month(date, label = TRUE)^6                        -5.390e-01  5.379e+00
-    ## month(date, label = TRUE)^7                        -9.192e+00  5.282e+00
-    ## month(date, label = TRUE)^8                        -2.093e+00  5.280e+00
-    ## month(date, label = TRUE)^9                         4.179e+00  5.271e+00
-    ## month(date, label = TRUE)^10                        5.079e+00  5.271e+00
-    ## month(date, label = TRUE)^11                       -6.148e+00  5.284e+00
-    ## fourier_vec(date, type = "sin", K = 1, period = 7) -1.169e+01  2.420e+00
-    ## fourier_vec(date, type = "cos", K = 1, period = 7)  7.175e+00  2.540e+00
+    ## (Intercept)                                        -1.917e+02  7.796e+01
+    ## date                                                1.145e-02  4.133e-03
+    ## lag(value, 1)                                       1.192e-01  2.524e-02
+    ## lag(value, 7)                                       9.674e-02  2.624e-02
+    ## lag(value, 14)                                      1.120e-01  2.627e-02
+    ## lag(value, 21)                                      5.101e-02  2.637e-02
+    ## lag(value, 28)                                      6.662e-02  2.631e-02
+    ## lag(value, 35)                                      6.841e-02  2.642e-02
+    ## lag(value, 42)                                      4.965e-02  2.651e-02
+    ## lag(value, 49)                                      9.292e-02  2.635e-02
+    ## month(date, label = TRUE).L                        -1.159e+01  5.316e+00
+    ## month(date, label = TRUE).Q                         2.473e+00  5.186e+00
+    ## month(date, label = TRUE).C                        -1.164e+01  5.265e+00
+    ## month(date, label = TRUE)^4                        -7.169e+00  5.293e+00
+    ## month(date, label = TRUE)^5                        -1.308e+01  5.295e+00
+    ## month(date, label = TRUE)^6                        -6.128e-01  5.379e+00
+    ## month(date, label = TRUE)^7                        -9.149e+00  5.284e+00
+    ## month(date, label = TRUE)^8                        -2.105e+00  5.281e+00
+    ## month(date, label = TRUE)^9                         4.191e+00  5.273e+00
+    ## month(date, label = TRUE)^10                        5.055e+00  5.272e+00
+    ## month(date, label = TRUE)^11                       -6.112e+00  5.286e+00
+    ## fourier_vec(date, type = "sin", K = 1, period = 7) -1.172e+01  2.418e+00
+    ## fourier_vec(date, type = "cos", K = 1, period = 7)  7.225e+00  2.539e+00
     ##                                                    t value Pr(>|t|)    
-    ## (Intercept)                                         -2.502 0.012462 *  
-    ## date                                                 2.809 0.005029 ** 
-    ## lag(value, 1)                                        4.867 1.26e-06 ***
-    ## lag(value, 7)                                        3.608 0.000319 ***
-    ## lag(value, 14)                                       4.178 3.12e-05 ***
-    ## lag(value, 21)                                       1.998 0.045856 *  
-    ## lag(value, 28)                                       2.507 0.012272 *  
-    ## lag(value, 35)                                       2.624 0.008777 ** 
-    ## lag(value, 42)                                       1.905 0.056933 .  
-    ## lag(value, 49)                                       3.577 0.000359 ***
-    ## month(date, label = TRUE).L                         -2.263 0.023792 *  
-    ## month(date, label = TRUE).Q                          0.552 0.581168    
-    ## month(date, label = TRUE).C                         -2.283 0.022600 *  
-    ## month(date, label = TRUE)^4                         -1.304 0.192346    
-    ## month(date, label = TRUE)^5                         -2.502 0.012442 *  
-    ## month(date, label = TRUE)^6                         -0.100 0.920201    
-    ## month(date, label = TRUE)^7                         -1.740 0.082069 .  
-    ## month(date, label = TRUE)^8                         -0.396 0.691805    
-    ## month(date, label = TRUE)^9                          0.793 0.428012    
-    ## month(date, label = TRUE)^10                         0.964 0.335403    
-    ## month(date, label = TRUE)^11                        -1.163 0.244843    
-    ## fourier_vec(date, type = "sin", K = 1, period = 7)  -4.833 1.49e-06 ***
-    ## fourier_vec(date, type = "cos", K = 1, period = 7)   2.825 0.004794 ** 
+    ## (Intercept)                                         -2.459 0.014050 *  
+    ## date                                                 2.772 0.005650 ** 
+    ## lag(value, 1)                                        4.723 2.55e-06 ***
+    ## lag(value, 7)                                        3.687 0.000235 ***
+    ## lag(value, 14)                                       4.265 2.13e-05 ***
+    ## lag(value, 21)                                       1.934 0.053272 .  
+    ## lag(value, 28)                                       2.532 0.011447 *  
+    ## lag(value, 35)                                       2.589 0.009710 ** 
+    ## lag(value, 42)                                       1.873 0.061260 .  
+    ## lag(value, 49)                                       3.526 0.000435 ***
+    ## month(date, label = TRUE).L                         -2.180 0.029443 *  
+    ## month(date, label = TRUE).Q                          0.477 0.633581    
+    ## month(date, label = TRUE).C                         -2.211 0.027177 *  
+    ## month(date, label = TRUE)^4                         -1.354 0.175836    
+    ## month(date, label = TRUE)^5                         -2.471 0.013591 *  
+    ## month(date, label = TRUE)^6                         -0.114 0.909312    
+    ## month(date, label = TRUE)^7                         -1.732 0.083573 .  
+    ## month(date, label = TRUE)^8                         -0.399 0.690289    
+    ## month(date, label = TRUE)^9                          0.795 0.426866    
+    ## month(date, label = TRUE)^10                         0.959 0.337860    
+    ## month(date, label = TRUE)^11                        -1.156 0.247736    
+    ## fourier_vec(date, type = "sin", K = 1, period = 7)  -4.850 1.37e-06 ***
+    ## fourier_vec(date, type = "cos", K = 1, period = 7)   2.845 0.004501 ** 
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 57.98 on 1450 degrees of freedom
+    ## Residual standard error: 58 on 1453 degrees of freedom
     ##   (49 observations deleted due to missingness)
-    ## Multiple R-squared:  0.2631, Adjusted R-squared:  0.252 
-    ## F-statistic: 23.54 on 22 and 1450 DF,  p-value: < 2.2e-16
+    ## Multiple R-squared:  0.2618, Adjusted R-squared:  0.2506 
+    ## F-statistic: 23.43 on 22 and 1453 DF,  p-value: < 2.2e-16
 
 ![](man/figures/README-base_data_frame-1.png)<!-- -->
 
@@ -252,15 +252,15 @@ nested_data_tbl
     ## # A tibble: 9 × 4
     ##   package       .actual_data         .future_data      .splits          
     ##   <fct>         <list>               <list>            <list>           
-    ## 1 healthyR.data <tibble [1,487 × 2]> <tibble [28 × 2]> <split [1459|28]>
-    ## 2 healthyR      <tibble [1,480 × 2]> <tibble [28 × 2]> <split [1452|28]>
+    ## 1 healthyR.data <tibble [1,490 × 2]> <tibble [28 × 2]> <split [1462|28]>
+    ## 2 healthyR      <tibble [1,483 × 2]> <tibble [28 × 2]> <split [1455|28]>
     ## 3 <NA>          <tibble [28 × 2]>    <tibble [28 × 2]> <split [0|28]>   
-    ## 4 healthyR.ts   <tibble [1,426 × 2]> <tibble [28 × 2]> <split [1398|28]>
-    ## 5 healthyverse  <tibble [1,397 × 2]> <tibble [28 × 2]> <split [1369|28]>
-    ## 6 healthyR.ai   <tibble [1,223 × 2]> <tibble [28 × 2]> <split [1195|28]>
-    ## 7 TidyDensity   <tibble [1,077 × 2]> <tibble [28 × 2]> <split [1049|28]>
-    ## 8 tidyAML       <tibble [693 × 2]>   <tibble [28 × 2]> <split [665|28]> 
-    ## 9 RandomWalker  <tibble [127 × 2]>   <tibble [28 × 2]> <split [99|28]>
+    ## 4 healthyR.ts   <tibble [1,429 × 2]> <tibble [28 × 2]> <split [1401|28]>
+    ## 5 healthyverse  <tibble [1,400 × 2]> <tibble [28 × 2]> <split [1372|28]>
+    ## 6 healthyR.ai   <tibble [1,226 × 2]> <tibble [28 × 2]> <split [1198|28]>
+    ## 7 TidyDensity   <tibble [1,080 × 2]> <tibble [28 × 2]> <split [1052|28]>
+    ## 8 tidyAML       <tibble [696 × 2]>   <tibble [28 × 2]> <split [668|28]> 
+    ## 9 RandomWalker  <tibble [130 × 2]>   <tibble [28 × 2]> <split [102|28]>
 
 Now it is time to make some recipes and models using the modeltime
 workflow.
@@ -359,38 +359,38 @@ nested_modeltime_tbl %>%
 
 | package | .model_id | .model_desc | .type | mae | mape | mase | smape | rmse | rsq |
 |:---|---:|:---|:---|---:|---:|---:|---:|---:|---:|
-| healthyR.data | 1 | ARIMA | Test | 1.0290976 | 229.6758 | 0.7753818 | 166.8385 | 1.1995563 | 0.0157987 |
-| healthyR.data | 2 | LM | Test | 1.0619604 | 255.3762 | 0.8001425 | 166.4317 | 1.2150580 | 0.0962202 |
-| healthyR.data | 3 | EARTH | Test | 1.2263275 | 376.3081 | 0.9239862 | 164.6994 | 1.3630301 | 0.0962202 |
-| healthyR.data | 4 | NNAR | Test | 0.8709451 | 105.2169 | 0.6562206 | 162.9535 | 1.0936588 | 0.0022774 |
-| healthyR | 1 | ARIMA | Test | 0.7839761 | 113.7870 | 0.7490044 | 165.6036 | 0.9852602 | 0.0340094 |
-| healthyR | 2 | LM | Test | 0.7792258 | 101.4562 | 0.7444660 | 181.9999 | 0.9802232 | 0.0223191 |
-| healthyR | 3 | EARTH | Test | 0.7925278 | 110.5996 | 0.7571746 | 158.3048 | 1.0060990 | 0.0223191 |
-| healthyR | 4 | NNAR | Test | 0.8094052 | 136.2654 | 0.7732992 | 161.7979 | 1.0123733 | 0.0031898 |
-| healthyR.ts | 1 | ARIMA | Test | 0.8244328 | 235.2152 | 0.6521624 | 129.9239 | 1.1022043 | 0.0009847 |
-| healthyR.ts | 2 | LM | Test | 0.8561692 | 301.1627 | 0.6772673 | 128.6463 | 1.1013818 | 0.0015284 |
-| healthyR.ts | 3 | EARTH | Test | 0.8783163 | 337.9534 | 0.6947866 | 128.7349 | 1.1058767 | 0.0015284 |
-| healthyR.ts | 4 | NNAR | Test | 0.8493525 | 104.5704 | 0.6718750 | 172.2695 | 1.1730042 | 0.0001368 |
-| healthyverse | 1 | ARIMA | Test | 0.7396527 | 252.0247 | 0.7016406 | 113.8037 | 0.8856199 | 0.0065728 |
-| healthyverse | 2 | LM | Test | 0.7895523 | 314.4066 | 0.7489757 | 112.6970 | 0.9249278 | 0.0001475 |
-| healthyverse | 3 | EARTH | Test | 0.8741632 | 398.0588 | 0.8292383 | 112.5506 | 1.0208789 | 0.0001475 |
-| healthyverse | 4 | NNAR | Test | 0.7186339 | 182.5858 | 0.6817019 | 125.6777 | 0.8708119 | 0.0074245 |
-| healthyR.ai | 1 | ARIMA | Test | 0.7556539 | 118.9853 | 0.7676565 | 184.1487 | 0.9370271 | 0.0053482 |
-| healthyR.ai | 2 | LM | Test | 0.7551176 | 142.3255 | 0.7671117 | 158.2107 | 0.9552373 | 0.0544996 |
-| healthyR.ai | 3 | EARTH | Test | 0.7906025 | 203.9761 | 0.8031601 | 135.5342 | 1.0329084 | 0.0544996 |
-| healthyR.ai | 4 | NNAR | Test | 0.7944940 | 147.8764 | 0.8071135 | 166.7804 | 0.9936332 | 0.0113589 |
-| TidyDensity | 1 | ARIMA | Test | 0.7469285 | 133.6427 | 0.7400684 | 113.9025 | 0.9248973 | 0.0184860 |
-| TidyDensity | 2 | LM | Test | 0.7703218 | 164.4649 | 0.7632469 | 106.8367 | 0.9416328 | 0.0135001 |
-| TidyDensity | 3 | EARTH | Test | 0.7258626 | 125.2875 | 0.7191960 | 111.4856 | 0.8980957 | 0.0135001 |
-| TidyDensity | 4 | NNAR | Test | 0.7876977 | 116.2700 | 0.7804632 | 145.8126 | 0.9551433 | 0.0114701 |
-| tidyAML | 1 | ARIMA | Test | 0.9750690 | 322.6758 | 0.8468374 | 108.5576 | 1.1369289 | 0.0233608 |
-| tidyAML | 2 | LM | Test | 0.9892960 | 223.4500 | 0.8591935 | 123.2633 | 1.1347907 | 0.0869067 |
-| tidyAML | 3 | EARTH | Test | 1.1953656 | 474.9950 | 1.0381627 | 108.4489 | 1.4025433 | 0.0869067 |
-| tidyAML | 4 | NNAR | Test | 0.9989229 | 249.6250 | 0.8675543 | 118.2568 | 1.1586483 | 0.0170649 |
-| RandomWalker | 1 | ARIMA | Test | 1.2118879 | 203.3990 | 0.5973795 | 134.5572 | 1.4293544 | 0.0768016 |
-| RandomWalker | 2 | LM | Test | 1.2131805 | 105.6946 | 0.5980166 | 159.6040 | 1.4285103 | 0.0176273 |
-| RandomWalker | 3 | EARTH | Test | 1.2077454 | 102.4606 | 0.5953375 | 161.0553 | 1.4223787 | NA |
-| RandomWalker | 4 | NNAR | Test | 1.4689383 | 193.8302 | 0.7240881 | 158.6077 | 1.7151906 | 0.0320162 |
+| healthyR.data | 1 | ARIMA | Test | 1.0282506 | 205.37098 | 0.7425254 | 162.8241 | 1.2020598 | 0.0230914 |
+| healthyR.data | 2 | LM | Test | 1.0693617 | 239.44193 | 0.7722127 | 161.3861 | 1.2284955 | 0.0706771 |
+| healthyR.data | 3 | EARTH | Test | 1.2188516 | 338.96012 | 0.8801631 | 162.4122 | 1.3551609 | 0.0706771 |
+| healthyR.data | 4 | NNAR | Test | 0.9006851 | 103.49794 | 0.6504071 | 173.0294 | 1.1052860 | 0.0167396 |
+| healthyR | 1 | ARIMA | Test | 0.7812029 | 106.16096 | 0.6995501 | 163.4230 | 0.9702118 | 0.0256584 |
+| healthyR | 2 | LM | Test | 0.7822876 | 102.70348 | 0.7005215 | 188.4015 | 0.9641112 | 0.0134398 |
+| healthyR | 3 | EARTH | Test | 0.7880538 | 107.60369 | 0.7056850 | 173.3182 | 0.9753774 | 0.0134398 |
+| healthyR | 4 | NNAR | Test | 0.7708118 | 125.92072 | 0.6902452 | 167.3134 | 0.9675020 | 0.0103574 |
+| healthyR.ts | 1 | ARIMA | Test | 0.7779449 | 262.42071 | 0.6044571 | 128.5774 | 1.0296737 | 0.0048018 |
+| healthyR.ts | 2 | LM | Test | 0.8020113 | 304.10097 | 0.6231565 | 128.3465 | 1.0359872 | 0.0066236 |
+| healthyR.ts | 3 | EARTH | Test | 0.8066355 | 311.76312 | 0.6267495 | 128.3134 | 1.0376683 | 0.0066236 |
+| healthyR.ts | 4 | NNAR | Test | 0.8046280 | 112.93019 | 0.6251897 | 181.0140 | 1.1073254 | 0.0001657 |
+| healthyverse | 1 | ARIMA | Test | 0.7187648 | 226.08040 | 0.6726478 | 110.4429 | 0.8683026 | 0.0027857 |
+| healthyverse | 2 | LM | Test | 0.7557580 | 296.43672 | 0.7072675 | 105.7689 | 0.8981852 | 0.0000076 |
+| healthyverse | 3 | EARTH | Test | 0.7997978 | 337.68952 | 0.7484816 | 106.3142 | 0.9386200 | 0.0000076 |
+| healthyverse | 4 | NNAR | Test | 0.7304655 | 175.92373 | 0.6835978 | 123.7005 | 0.8828904 | 0.0003536 |
+| healthyR.ai | 1 | ARIMA | Test | 0.7255785 | 108.16999 | 0.6785050 | 179.0807 | 0.9215653 | 0.0005323 |
+| healthyR.ai | 2 | LM | Test | 0.7445464 | 144.82405 | 0.6962423 | 162.3781 | 0.9326298 | 0.0210745 |
+| healthyR.ai | 3 | EARTH | Test | 0.7630066 | 186.45398 | 0.7135049 | 145.0084 | 0.9729754 | 0.0210745 |
+| healthyR.ai | 4 | NNAR | Test | 0.7444619 | 121.68906 | 0.6961633 | 169.0453 | 0.9463371 | 0.0012887 |
+| TidyDensity | 1 | ARIMA | Test | 0.7052434 | 111.38673 | 0.6967067 | 112.7804 | 0.8947211 | 0.0256181 |
+| TidyDensity | 2 | LM | Test | 0.7429211 | 160.86799 | 0.7339284 | 105.3885 | 0.9202598 | 0.0041688 |
+| TidyDensity | 3 | EARTH | Test | 0.6825435 | 121.48458 | 0.6742816 | 107.0712 | 0.8667051 | 0.0041688 |
+| TidyDensity | 4 | NNAR | Test | 0.7685117 | 104.53263 | 0.7592092 | 149.7797 | 0.9455513 | 0.0611465 |
+| tidyAML | 1 | ARIMA | Test | 0.8908528 | 289.09836 | 0.7920885 | 100.6181 | 1.0778746 | 0.0492513 |
+| tidyAML | 2 | LM | Test | 0.9230088 | 212.44550 | 0.8206795 | 114.0074 | 1.0975132 | 0.0699574 |
+| tidyAML | 3 | EARTH | Test | 0.9540916 | 319.36187 | 0.8483163 | 102.3357 | 1.1432907 | 0.0699574 |
+| tidyAML | 4 | NNAR | Test | 0.9281383 | 224.91578 | 0.8252403 | 108.9675 | 1.1134113 | 0.0144224 |
+| RandomWalker | 1 | ARIMA | Test | 1.3756711 | 161.59626 | 0.6401827 | 143.0262 | 1.6068161 | 0.0021818 |
+| RandomWalker | 2 | LM | Test | 1.2709732 | 99.43268 | 0.5914605 | 167.3332 | 1.4654069 | 0.0107028 |
+| RandomWalker | 3 | EARTH | Test | 1.2736959 | 101.20745 | 0.5927275 | 165.7513 | 1.4690998 | NA |
+| RandomWalker | 4 | NNAR | Test | 1.3994247 | 152.77808 | 0.6512367 | 159.8397 | 1.6689093 | 0.0081076 |
 
 ### Plot Models
 
@@ -427,16 +427,16 @@ best_nested_modeltime_tbl %>%
     ## 
 
     ## # A tibble: 8 × 10
-    ##   package     .model_id .model_desc .type   mae  mape  mase smape  rmse      rsq
-    ##   <fct>           <int> <chr>       <chr> <dbl> <dbl> <dbl> <dbl> <dbl>    <dbl>
-    ## 1 healthyR.d…         4 NNAR        Test  0.871  105. 0.656  163. 1.09   0.00228
-    ## 2 healthyR            2 LM          Test  0.779  101. 0.744  182. 0.980  0.0223 
-    ## 3 healthyR.ts         2 LM          Test  0.856  301. 0.677  129. 1.10   0.00153
-    ## 4 healthyver…         4 NNAR        Test  0.719  183. 0.682  126. 0.871  0.00742
-    ## 5 healthyR.ai         1 ARIMA       Test  0.756  119. 0.768  184. 0.937  0.00535
-    ## 6 TidyDensity         3 EARTH       Test  0.726  125. 0.719  111. 0.898  0.0135 
-    ## 7 tidyAML             2 LM          Test  0.989  223. 0.859  123. 1.13   0.0869 
-    ## 8 RandomWalk…         3 EARTH       Test  1.21   102. 0.595  161. 1.42  NA
+    ##   package      .model_id .model_desc .type   mae  mape  mase smape  rmse     rsq
+    ##   <fct>            <int> <chr>       <chr> <dbl> <dbl> <dbl> <dbl> <dbl>   <dbl>
+    ## 1 healthyR.da…         4 NNAR        Test  0.901 103.  0.650  173. 1.11  1.67e-2
+    ## 2 healthyR             2 LM          Test  0.782 103.  0.701  188. 0.964 1.34e-2
+    ## 3 healthyR.ts          1 ARIMA       Test  0.778 262.  0.604  129. 1.03  4.80e-3
+    ## 4 healthyverse         1 ARIMA       Test  0.719 226.  0.673  110. 0.868 2.79e-3
+    ## 5 healthyR.ai          1 ARIMA       Test  0.726 108.  0.679  179. 0.922 5.32e-4
+    ## 6 TidyDensity          3 EARTH       Test  0.683 121.  0.674  107. 0.867 4.17e-3
+    ## 7 tidyAML              1 ARIMA       Test  0.891 289.  0.792  101. 1.08  4.93e-2
+    ## 8 RandomWalker         2 LM          Test  1.27   99.4 0.591  167. 1.47  1.07e-2
 
 ``` r
 best_nested_modeltime_tbl %>%
@@ -475,14 +475,14 @@ nested_modeltime_refit_tbl
     ## # A tibble: 8 × 5
     ##   package       .actual_data .future_data .splits           .modeltime_tables 
     ##   <fct>         <list>       <list>       <list>            <list>            
-    ## 1 healthyR.data <tibble>     <tibble>     <split [1459|28]> <mdl_tm_t [1 × 5]>
-    ## 2 healthyR      <tibble>     <tibble>     <split [1452|28]> <mdl_tm_t [1 × 5]>
-    ## 3 healthyR.ts   <tibble>     <tibble>     <split [1398|28]> <mdl_tm_t [1 × 5]>
-    ## 4 healthyverse  <tibble>     <tibble>     <split [1369|28]> <mdl_tm_t [1 × 5]>
-    ## 5 healthyR.ai   <tibble>     <tibble>     <split [1195|28]> <mdl_tm_t [1 × 5]>
-    ## 6 TidyDensity   <tibble>     <tibble>     <split [1049|28]> <mdl_tm_t [1 × 5]>
-    ## 7 tidyAML       <tibble>     <tibble>     <split [665|28]>  <mdl_tm_t [1 × 5]>
-    ## 8 RandomWalker  <tibble>     <tibble>     <split [99|28]>   <mdl_tm_t [1 × 5]>
+    ## 1 healthyR.data <tibble>     <tibble>     <split [1462|28]> <mdl_tm_t [1 × 5]>
+    ## 2 healthyR      <tibble>     <tibble>     <split [1455|28]> <mdl_tm_t [1 × 5]>
+    ## 3 healthyR.ts   <tibble>     <tibble>     <split [1401|28]> <mdl_tm_t [1 × 5]>
+    ## 4 healthyverse  <tibble>     <tibble>     <split [1372|28]> <mdl_tm_t [1 × 5]>
+    ## 5 healthyR.ai   <tibble>     <tibble>     <split [1198|28]> <mdl_tm_t [1 × 5]>
+    ## 6 TidyDensity   <tibble>     <tibble>     <split [1052|28]> <mdl_tm_t [1 × 5]>
+    ## 7 tidyAML       <tibble>     <tibble>     <split [668|28]>  <mdl_tm_t [1 × 5]>
+    ## 8 RandomWalker  <tibble>     <tibble>     <split [102|28]>  <mdl_tm_t [1 × 5]>
 
 ``` r
 nested_modeltime_refit_tbl %>%
