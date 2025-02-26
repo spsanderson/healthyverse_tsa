@@ -237,7 +237,7 @@ base_data <- ts_downloads_tbl(
   .by_time = "day",
   package
 ) %>%
-    filter(date >= subtract_time(date, "18 months")) %>%
+    #filter(date >= subtract_time(date, "18 months")) %>%
     mutate(package = factor(package)) %>%
     select(package, date, value)
 ```
