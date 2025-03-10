@@ -244,7 +244,7 @@ This is something I have been wanting to try for a while. The `NNS` package is a
 great package for forecasting time series data.
 
 [NNS GitHub](https://github.com/OVVO-Financial/NNS)
-```{r message=FALSE, warning=FALSE}
+```{r nns_forecasting, message=FALSE, warning=FALSE}
 library(NNS)
 
 data_list <- base_data |>
@@ -259,7 +259,7 @@ data_list |>
             train_set_size <- floor(.8*length(x))
             pkg <- obj |> pluck(1) |> unique()
             
-            cat(paste0("Package: ", pkg))
+            cat(paste0("Package: ", pkg, "\n"))
             NNS.ARMA.optim(
                 variable = x,
                 h = 28,
