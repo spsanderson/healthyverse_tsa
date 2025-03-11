@@ -256,16 +256,17 @@ data_list |>
         \(x, idx) {
             obj <- x
             x <- obj |> pull(value) |> tail(7*52)
-            train_set_size <- floor(.8*length(x))
+            train_set_size <- length(x) - 56
             pkg <- obj |> pluck(1) |> unique()
+            sf <- NNS.seas(x, modulo = 7, plot = FALSE)$periods
             
             cat(paste0("Package: ", pkg, "\n"))
             NNS.ARMA.optim(
                 variable = x,
                 h = 28,
                 training.set = train_set_size,
-                seasonal.factor = seq(12, 60, 7),
-                objective = "min",
+                #seasonal.factor = seq(12, 60, 7),
+                seasonal.factor = sf,
                 pred.int = 0.95,
                 plot = TRUE
             )
