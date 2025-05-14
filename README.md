@@ -1,7 +1,7 @@
 Time Series Analysis and Nested Modeling of the Healthyverse Packages
 ================
 Steven P. Sanderson II, MPH - Date:
-13 May, 2025
+14 May, 2025
 
 This analysis follows a *Nested Modeltime Workflow*.
 
@@ -11,7 +11,7 @@ This analysis follows a *Nested Modeltime Workflow*.
 glimpse(downloads_tbl)
 ```
 
-    ## Rows: 139,679
+    ## Rows: 139,750
     ## Columns: 11
     ## $ date      <date> 2020-11-23, 2020-11-23, 2020-11-23, 2020-11-23, 2020-11-23,…
     ## $ time      <Period> 15H 36M 55S, 11H 26M 39S, 23H 34M 44S, 18H 39M 32S, 9H 0M…
@@ -25,8 +25,8 @@ glimpse(downloads_tbl)
     ## $ country   <chr> "US", "US", "US", "GB", "US", "US", "DE", "HK", "JP", "US", …
     ## $ ip_id     <int> 2069, 2804, 78827, 27595, 90474, 90474, 42435, 74, 7655, 638…
 
-The last day in the data set is 2025-05-11 21:52:04, the file was
-birthed on: 2024-08-07 07:35:44, and at report knit time is -6658.27
+The last day in the data set is 2025-05-12 23:42:03, the file was
+birthed on: 2024-08-07 07:35:44, and at report knit time is -6684.11
 hours old. Happy analyzing!
 
 Now that we have our data lets take a look at it using the `skimr`
@@ -39,7 +39,7 @@ skim(downloads_tbl)
 |                                                  |               |
 |:-------------------------------------------------|:--------------|
 | Name                                             | downloads_tbl |
-| Number of rows                                   | 139679        |
+| Number of rows                                   | 139750        |
 | Number of columns                                | 11            |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   |               |
 | Column type frequency:                           |               |
@@ -57,37 +57,37 @@ Data summary
 
 | skim_variable | n_missing | complete_rate | min | max | empty | n_unique | whitespace |
 |:--------------|----------:|--------------:|----:|----:|------:|---------:|-----------:|
-| r_version     |    100683 |          0.28 |   5 |   5 |     0 |       46 |          0 |
-| r_arch        |    100683 |          0.28 |   3 |   7 |     0 |        5 |          0 |
-| r_os          |    100683 |          0.28 |   7 |  15 |     0 |       22 |          0 |
+| r_version     |    100727 |          0.28 |   5 |   5 |     0 |       46 |          0 |
+| r_arch        |    100727 |          0.28 |   3 |   7 |     0 |        5 |          0 |
+| r_os          |    100727 |          0.28 |   7 |  15 |     0 |       22 |          0 |
 | package       |         0 |          1.00 |   7 |  13 |     0 |        8 |          0 |
 | version       |         0 |          1.00 |   5 |  17 |     0 |       60 |          0 |
-| country       |     11898 |          0.91 |   2 |   2 |     0 |      163 |          0 |
+| country       |     11916 |          0.91 |   2 |   2 |     0 |      163 |          0 |
 
 **Variable type: Date**
 
 | skim_variable | n_missing | complete_rate | min | max | median | n_unique |
 |:---|---:|---:|:---|:---|:---|---:|
-| date | 0 | 1 | 2020-11-23 | 2025-05-11 | 2023-06-20 | 1631 |
+| date | 0 | 1 | 2020-11-23 | 2025-05-12 | 2023-06-20 | 1632 |
 
 **Variable type: numeric**
 
 | skim_variable | n_missing | complete_rate | mean | sd | p0 | p25 | p50 | p75 | p100 | hist |
 |:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|:---|
-| size | 0 | 1 | 1134713.04 | 1519873.73 | 355 | 14701 | 289680 | 2367754 | 5677952 | ▇▁▂▁▁ |
-| ip_id | 0 | 1 | 10386.81 | 18486.12 | 1 | 292 | 3042 | 11639 | 209747 | ▇▁▁▁▁ |
+| size | 0 | 1 | 1134694.24 | 1519774.30 | 355 | 14701 | 289680 | 2367751 | 5677952 | ▇▁▂▁▁ |
+| ip_id | 0 | 1 | 10388.73 | 18489.26 | 1 | 292 | 3042 | 11639 | 209747 | ▇▁▁▁▁ |
 
 **Variable type: POSIXct**
 
 | skim_variable | n_missing | complete_rate | min | max | median | n_unique |
 |:---|---:|---:|:---|:---|:---|---:|
-| date_time | 0 | 1 | 2020-11-23 09:00:41 | 2025-05-11 21:52:04 | 2023-06-20 04:30:21 | 85309 |
+| date_time | 0 | 1 | 2020-11-23 09:00:41 | 2025-05-12 23:42:03 | 2023-06-20 14:18:44 | 85377 |
 
 **Variable type: Timespan**
 
-| skim_variable | n_missing | complete_rate | min | max |    median | n_unique |
-|:--------------|----------:|--------------:|----:|----:|----------:|---------:|
-| time          |         0 |             1 |   0 |  59 | 12H 7M 7S |       60 |
+| skim_variable | n_missing | complete_rate | min | max | median | n_unique |
+|:--------------|----------:|--------------:|----:|----:|-------:|---------:|
+| time          |         0 |             1 |   0 |  59 |     11 |       60 |
 
 We can see that the following columns are missing a lot of data and for
 us are most likely not useful anyways, so we will drop them
@@ -119,64 +119,64 @@ weeks or 28 days for each package. First lets get our base data.
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -146.40  -35.69  -11.25   26.62  814.96 
+    ## -146.41  -35.69  -11.29   26.61  814.94 
     ## 
     ## Coefficients:
     ##                                                      Estimate Std. Error
-    ## (Intercept)                                        -1.842e+02  7.050e+01
-    ## date                                                1.127e-02  3.738e-03
-    ## lag(value, 1)                                       1.030e-01  2.458e-02
-    ## lag(value, 7)                                       9.621e-02  2.545e-02
-    ## lag(value, 14)                                      8.872e-02  2.550e-02
-    ## lag(value, 21)                                      6.799e-02  2.560e-02
-    ## lag(value, 28)                                      7.012e-02  2.550e-02
-    ## lag(value, 35)                                      6.645e-02  2.564e-02
-    ## lag(value, 42)                                      4.619e-02  2.574e-02
-    ## lag(value, 49)                                      6.750e-02  2.565e-02
-    ## month(date, label = TRUE).L                        -9.980e+00  5.130e+00
-    ## month(date, label = TRUE).Q                         3.060e+00  5.178e+00
-    ## month(date, label = TRUE).C                        -1.259e+01  5.169e+00
-    ## month(date, label = TRUE)^4                        -6.743e+00  5.199e+00
-    ## month(date, label = TRUE)^5                        -1.200e+01  5.173e+00
-    ## month(date, label = TRUE)^6                        -3.286e+00  5.242e+00
-    ## month(date, label = TRUE)^7                        -6.586e+00  5.149e+00
-    ## month(date, label = TRUE)^8                        -4.145e+00  5.150e+00
-    ## month(date, label = TRUE)^9                         5.348e+00  5.147e+00
-    ## month(date, label = TRUE)^10                        4.298e+00  5.184e+00
-    ## month(date, label = TRUE)^11                       -5.625e+00  5.304e+00
-    ## fourier_vec(date, type = "sin", K = 1, period = 7) -1.183e+01  2.362e+00
-    ## fourier_vec(date, type = "cos", K = 1, period = 7)  8.368e+00  2.486e+00
+    ## (Intercept)                                        -1.830e+02  7.040e+01
+    ## date                                                1.120e-02  3.732e-03
+    ## lag(value, 1)                                       1.032e-01  2.456e-02
+    ## lag(value, 7)                                       9.634e-02  2.545e-02
+    ## lag(value, 14)                                      8.898e-02  2.548e-02
+    ## lag(value, 21)                                      6.796e-02  2.559e-02
+    ## lag(value, 28)                                      6.999e-02  2.549e-02
+    ## lag(value, 35)                                      6.639e-02  2.563e-02
+    ## lag(value, 42)                                      4.643e-02  2.573e-02
+    ## lag(value, 49)                                      6.732e-02  2.564e-02
+    ## month(date, label = TRUE).L                        -9.954e+00  5.128e+00
+    ## month(date, label = TRUE).Q                         3.108e+00  5.175e+00
+    ## month(date, label = TRUE).C                        -1.264e+01  5.167e+00
+    ## month(date, label = TRUE)^4                        -6.760e+00  5.198e+00
+    ## month(date, label = TRUE)^5                        -1.194e+01  5.169e+00
+    ## month(date, label = TRUE)^6                        -3.285e+00  5.241e+00
+    ## month(date, label = TRUE)^7                        -6.637e+00  5.145e+00
+    ## month(date, label = TRUE)^8                        -4.096e+00  5.147e+00
+    ## month(date, label = TRUE)^9                         5.377e+00  5.145e+00
+    ## month(date, label = TRUE)^10                        4.215e+00  5.178e+00
+    ## month(date, label = TRUE)^11                       -5.557e+00  5.300e+00
+    ## fourier_vec(date, type = "sin", K = 1, period = 7) -1.182e+01  2.361e+00
+    ## fourier_vec(date, type = "cos", K = 1, period = 7)  8.381e+00  2.485e+00
     ##                                                    t value Pr(>|t|)    
-    ## (Intercept)                                         -2.613 0.009054 ** 
-    ## date                                                 3.015 0.002611 ** 
-    ## lag(value, 1)                                        4.191 2.93e-05 ***
-    ## lag(value, 7)                                        3.780 0.000163 ***
-    ## lag(value, 14)                                       3.480 0.000516 ***
-    ## lag(value, 21)                                       2.656 0.007988 ** 
-    ## lag(value, 28)                                       2.750 0.006024 ** 
-    ## lag(value, 35)                                       2.592 0.009644 ** 
-    ## lag(value, 42)                                       1.795 0.072914 .  
-    ## lag(value, 49)                                       2.632 0.008576 ** 
-    ## month(date, label = TRUE).L                         -1.945 0.051924 .  
-    ## month(date, label = TRUE).Q                          0.591 0.554641    
-    ## month(date, label = TRUE).C                         -2.436 0.014947 *  
-    ## month(date, label = TRUE)^4                         -1.297 0.194827    
-    ## month(date, label = TRUE)^5                         -2.320 0.020490 *  
-    ## month(date, label = TRUE)^6                         -0.627 0.530868    
-    ## month(date, label = TRUE)^7                         -1.279 0.201009    
-    ## month(date, label = TRUE)^8                         -0.805 0.421067    
-    ## month(date, label = TRUE)^9                          1.039 0.298915    
-    ## month(date, label = TRUE)^10                         0.829 0.407152    
-    ## month(date, label = TRUE)^11                        -1.060 0.289128    
-    ## fourier_vec(date, type = "sin", K = 1, period = 7)  -5.010 6.06e-07 ***
-    ## fourier_vec(date, type = "cos", K = 1, period = 7)   3.366 0.000782 ***
+    ## (Intercept)                                         -2.599 0.009441 ** 
+    ## date                                                 3.001 0.002733 ** 
+    ## lag(value, 1)                                        4.202 2.80e-05 ***
+    ## lag(value, 7)                                        3.786 0.000159 ***
+    ## lag(value, 14)                                       3.492 0.000492 ***
+    ## lag(value, 21)                                       2.656 0.007993 ** 
+    ## lag(value, 28)                                       2.746 0.006100 ** 
+    ## lag(value, 35)                                       2.590 0.009686 ** 
+    ## lag(value, 42)                                       1.805 0.071314 .  
+    ## lag(value, 49)                                       2.626 0.008725 ** 
+    ## month(date, label = TRUE).L                         -1.941 0.052447 .  
+    ## month(date, label = TRUE).Q                          0.601 0.548160    
+    ## month(date, label = TRUE).C                         -2.445 0.014575 *  
+    ## month(date, label = TRUE)^4                         -1.301 0.193585    
+    ## month(date, label = TRUE)^5                         -2.310 0.021027 *  
+    ## month(date, label = TRUE)^6                         -0.627 0.530883    
+    ## month(date, label = TRUE)^7                         -1.290 0.197268    
+    ## month(date, label = TRUE)^8                         -0.796 0.426316    
+    ## month(date, label = TRUE)^9                          1.045 0.296157    
+    ## month(date, label = TRUE)^10                         0.814 0.415784    
+    ## month(date, label = TRUE)^11                        -1.049 0.294520    
+    ## fourier_vec(date, type = "sin", K = 1, period = 7)  -5.005 6.21e-07 ***
+    ## fourier_vec(date, type = "cos", K = 1, period = 7)   3.372 0.000765 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 58.87 on 1559 degrees of freedom
+    ## Residual standard error: 58.85 on 1560 degrees of freedom
     ##   (49 observations deleted due to missingness)
-    ## Multiple R-squared:  0.2422, Adjusted R-squared:  0.2315 
-    ## F-statistic: 22.64 on 22 and 1559 DF,  p-value: < 2.2e-16
+    ## Multiple R-squared:  0.2421, Adjusted R-squared:  0.2314 
+    ## F-statistic: 22.65 on 22 and 1560 DF,  p-value: < 2.2e-16
 
 ![](man/figures/README-base_data_frame-1.png)<!-- -->
 
@@ -225,25 +225,25 @@ data_list |>
     ## [1] "CURRNET METHOD: lin"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'lin' , seasonal.factor =  c( 84 ) ...)"
-    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 3.51765715030642"
+    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 3.70354069784446"
     ## [1] "NNS.ARMA(... method =  'lin' , seasonal.factor =  c( 84, 91 ) ...)"
-    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 3.10275307299668"
+    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 3.37061428615375"
     ## [1] "NNS.ARMA(... method =  'lin' , seasonal.factor =  c( 84, 91, 63 ) ...)"
-    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 2.94590959057962"
+    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 3.0167879026887"
     ## [1] "BEST method = 'lin', seasonal.factor = c( 84, 91, 63 )"
-    ## [1] "BEST lin OBJECTIVE FUNCTION = 2.94590959057962"
+    ## [1] "BEST lin OBJECTIVE FUNCTION = 3.0167879026887"
     ## [1] "CURRNET METHOD: nonlin"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'nonlin' , seasonal.factor =  c( 84, 91, 63 ) ...)"
-    ## [1] "CURRENT nonlin OBJECTIVE FUNCTION = 3.61007447272062"
+    ## [1] "CURRENT nonlin OBJECTIVE FUNCTION = 3.65426750207294"
     ## [1] "BEST method = 'nonlin' PATH MEMBER = c( 84, 91, 63 )"
-    ## [1] "BEST nonlin OBJECTIVE FUNCTION = 3.61007447272062"
+    ## [1] "BEST nonlin OBJECTIVE FUNCTION = 3.65426750207294"
     ## [1] "CURRNET METHOD: both"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'both' , seasonal.factor =  c( 84, 91, 63 ) ...)"
-    ## [1] "CURRENT both OBJECTIVE FUNCTION = 3.18728426662792"
+    ## [1] "CURRENT both OBJECTIVE FUNCTION = 3.26290215311353"
     ## [1] "BEST method = 'both' PATH MEMBER = c( 84, 91, 63 )"
-    ## [1] "BEST both OBJECTIVE FUNCTION = 3.18728426662792"
+    ## [1] "BEST both OBJECTIVE FUNCTION = 3.26290215311353"
 
 ![](man/figures/README-nns_forecasting-1.png)<!-- -->
 
@@ -251,21 +251,23 @@ data_list |>
     ## [1] "CURRNET METHOD: lin"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'lin' , seasonal.factor =  c( 84 ) ...)"
-    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 4.53476956634227"
-    ## [1] "BEST method = 'lin', seasonal.factor = c( 84 )"
-    ## [1] "BEST lin OBJECTIVE FUNCTION = 4.53476956634227"
+    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 4.69886616798769"
+    ## [1] "NNS.ARMA(... method =  'lin' , seasonal.factor =  c( 84, 63 ) ...)"
+    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 4.64705914118706"
+    ## [1] "BEST method = 'lin', seasonal.factor = c( 84, 63 )"
+    ## [1] "BEST lin OBJECTIVE FUNCTION = 4.64705914118706"
     ## [1] "CURRNET METHOD: nonlin"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
-    ## [1] "NNS.ARMA(... method =  'nonlin' , seasonal.factor =  c( 84 ) ...)"
-    ## [1] "CURRENT nonlin OBJECTIVE FUNCTION = 5.79285762902149"
-    ## [1] "BEST method = 'nonlin' PATH MEMBER = c( 84 )"
-    ## [1] "BEST nonlin OBJECTIVE FUNCTION = 5.79285762902149"
+    ## [1] "NNS.ARMA(... method =  'nonlin' , seasonal.factor =  c( 84, 63 ) ...)"
+    ## [1] "CURRENT nonlin OBJECTIVE FUNCTION = 4.99971188146433"
+    ## [1] "BEST method = 'nonlin' PATH MEMBER = c( 84, 63 )"
+    ## [1] "BEST nonlin OBJECTIVE FUNCTION = 4.99971188146433"
     ## [1] "CURRNET METHOD: both"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
-    ## [1] "NNS.ARMA(... method =  'both' , seasonal.factor =  c( 84 ) ...)"
-    ## [1] "CURRENT both OBJECTIVE FUNCTION = 5.05097853987349"
-    ## [1] "BEST method = 'both' PATH MEMBER = c( 84 )"
-    ## [1] "BEST both OBJECTIVE FUNCTION = 5.05097853987349"
+    ## [1] "NNS.ARMA(... method =  'both' , seasonal.factor =  c( 84, 63 ) ...)"
+    ## [1] "CURRENT both OBJECTIVE FUNCTION = 4.78278414361104"
+    ## [1] "BEST method = 'both' PATH MEMBER = c( 84, 63 )"
+    ## [1] "BEST both OBJECTIVE FUNCTION = 4.78278414361104"
 
 ![](man/figures/README-nns_forecasting-2.png)<!-- -->
 
@@ -273,25 +275,25 @@ data_list |>
     ## [1] "CURRNET METHOD: lin"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'lin' , seasonal.factor =  c( 21 ) ...)"
-    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 2.62496296157417"
+    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 2.71899258739161"
     ## [1] "NNS.ARMA(... method =  'lin' , seasonal.factor =  c( 21, 91 ) ...)"
-    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 2.07140415516843"
+    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 2.15512024745691"
     ## [1] "NNS.ARMA(... method =  'lin' , seasonal.factor =  c( 21, 91, 63 ) ...)"
-    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 2.01742627613654"
+    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 2.01835639269705"
     ## [1] "BEST method = 'lin', seasonal.factor = c( 21, 91, 63 )"
-    ## [1] "BEST lin OBJECTIVE FUNCTION = 2.01742627613654"
+    ## [1] "BEST lin OBJECTIVE FUNCTION = 2.01835639269705"
     ## [1] "CURRNET METHOD: nonlin"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'nonlin' , seasonal.factor =  c( 21, 91, 63 ) ...)"
-    ## [1] "CURRENT nonlin OBJECTIVE FUNCTION = 1.70816000935359"
+    ## [1] "CURRENT nonlin OBJECTIVE FUNCTION = 1.74755719012091"
     ## [1] "BEST method = 'nonlin' PATH MEMBER = c( 21, 91, 63 )"
-    ## [1] "BEST nonlin OBJECTIVE FUNCTION = 1.70816000935359"
+    ## [1] "BEST nonlin OBJECTIVE FUNCTION = 1.74755719012091"
     ## [1] "CURRNET METHOD: both"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'both' , seasonal.factor =  c( 21, 91, 63 ) ...)"
-    ## [1] "CURRENT both OBJECTIVE FUNCTION = 1.67351472240669"
+    ## [1] "CURRENT both OBJECTIVE FUNCTION = 1.703041219895"
     ## [1] "BEST method = 'both' PATH MEMBER = c( 21, 91, 63 )"
-    ## [1] "BEST both OBJECTIVE FUNCTION = 1.67351472240669"
+    ## [1] "BEST both OBJECTIVE FUNCTION = 1.703041219895"
 
 ![](man/figures/README-nns_forecasting-3.png)<!-- -->
 
@@ -299,23 +301,23 @@ data_list |>
     ## [1] "CURRNET METHOD: lin"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'lin' , seasonal.factor =  c( 63 ) ...)"
-    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 5.0930430052858"
+    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 5.06600022494205"
     ## [1] "NNS.ARMA(... method =  'lin' , seasonal.factor =  c( 63, 91 ) ...)"
-    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 4.27025829187226"
+    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 4.36421415289236"
     ## [1] "BEST method = 'lin', seasonal.factor = c( 63, 91 )"
-    ## [1] "BEST lin OBJECTIVE FUNCTION = 4.27025829187226"
+    ## [1] "BEST lin OBJECTIVE FUNCTION = 4.36421415289236"
     ## [1] "CURRNET METHOD: nonlin"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'nonlin' , seasonal.factor =  c( 63, 91 ) ...)"
-    ## [1] "CURRENT nonlin OBJECTIVE FUNCTION = 5.70509520949935"
+    ## [1] "CURRENT nonlin OBJECTIVE FUNCTION = 5.86112395251268"
     ## [1] "BEST method = 'nonlin' PATH MEMBER = c( 63, 91 )"
-    ## [1] "BEST nonlin OBJECTIVE FUNCTION = 5.70509520949935"
+    ## [1] "BEST nonlin OBJECTIVE FUNCTION = 5.86112395251268"
     ## [1] "CURRNET METHOD: both"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'both' , seasonal.factor =  c( 63, 91 ) ...)"
-    ## [1] "CURRENT both OBJECTIVE FUNCTION = 4.84389878419877"
+    ## [1] "CURRENT both OBJECTIVE FUNCTION = 4.9717976830046"
     ## [1] "BEST method = 'both' PATH MEMBER = c( 63, 91 )"
-    ## [1] "BEST both OBJECTIVE FUNCTION = 4.84389878419877"
+    ## [1] "BEST both OBJECTIVE FUNCTION = 4.9717976830046"
 
 ![](man/figures/README-nns_forecasting-4.png)<!-- -->
 
@@ -323,21 +325,21 @@ data_list |>
     ## [1] "CURRNET METHOD: lin"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'lin' , seasonal.factor =  c( 28 ) ...)"
-    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 8.58833716796697"
+    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 7.60506306857322"
     ## [1] "BEST method = 'lin', seasonal.factor = c( 28 )"
-    ## [1] "BEST lin OBJECTIVE FUNCTION = 8.58833716796697"
+    ## [1] "BEST lin OBJECTIVE FUNCTION = 7.60506306857322"
     ## [1] "CURRNET METHOD: nonlin"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'nonlin' , seasonal.factor =  c( 28 ) ...)"
-    ## [1] "CURRENT nonlin OBJECTIVE FUNCTION = 5.66881308134378"
+    ## [1] "CURRENT nonlin OBJECTIVE FUNCTION = 4.96246064588702"
     ## [1] "BEST method = 'nonlin' PATH MEMBER = c( 28 )"
-    ## [1] "BEST nonlin OBJECTIVE FUNCTION = 5.66881308134378"
+    ## [1] "BEST nonlin OBJECTIVE FUNCTION = 4.96246064588702"
     ## [1] "CURRNET METHOD: both"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'both' , seasonal.factor =  c( 28 ) ...)"
-    ## [1] "CURRENT both OBJECTIVE FUNCTION = 5.67744153812562"
+    ## [1] "CURRENT both OBJECTIVE FUNCTION = 4.82903367657672"
     ## [1] "BEST method = 'both' PATH MEMBER = c( 28 )"
-    ## [1] "BEST both OBJECTIVE FUNCTION = 5.67744153812562"
+    ## [1] "BEST both OBJECTIVE FUNCTION = 4.82903367657672"
 
 ![](man/figures/README-nns_forecasting-5.png)<!-- -->
 
@@ -345,21 +347,21 @@ data_list |>
     ## [1] "CURRNET METHOD: lin"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'lin' , seasonal.factor =  c( 35 ) ...)"
-    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 3.39275395671717"
+    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 3.24852792551691"
     ## [1] "BEST method = 'lin', seasonal.factor = c( 35 )"
-    ## [1] "BEST lin OBJECTIVE FUNCTION = 3.39275395671717"
+    ## [1] "BEST lin OBJECTIVE FUNCTION = 3.24852792551691"
     ## [1] "CURRNET METHOD: nonlin"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'nonlin' , seasonal.factor =  c( 35 ) ...)"
-    ## [1] "CURRENT nonlin OBJECTIVE FUNCTION = 3.20019338865283"
+    ## [1] "CURRENT nonlin OBJECTIVE FUNCTION = 3.09273175672822"
     ## [1] "BEST method = 'nonlin' PATH MEMBER = c( 35 )"
-    ## [1] "BEST nonlin OBJECTIVE FUNCTION = 3.20019338865283"
+    ## [1] "BEST nonlin OBJECTIVE FUNCTION = 3.09273175672822"
     ## [1] "CURRNET METHOD: both"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'both' , seasonal.factor =  c( 35 ) ...)"
-    ## [1] "CURRENT both OBJECTIVE FUNCTION = 3.06891006474775"
+    ## [1] "CURRENT both OBJECTIVE FUNCTION = 2.96462008598628"
     ## [1] "BEST method = 'both' PATH MEMBER = c( 35 )"
-    ## [1] "BEST both OBJECTIVE FUNCTION = 3.06891006474775"
+    ## [1] "BEST both OBJECTIVE FUNCTION = 2.96462008598628"
 
 ![](man/figures/README-nns_forecasting-6.png)<!-- -->
 
@@ -367,21 +369,21 @@ data_list |>
     ## [1] "CURRNET METHOD: lin"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'lin' , seasonal.factor =  c( 28 ) ...)"
-    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 2.37483440575717"
+    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 2.63371794818969"
     ## [1] "BEST method = 'lin', seasonal.factor = c( 28 )"
-    ## [1] "BEST lin OBJECTIVE FUNCTION = 2.37483440575717"
+    ## [1] "BEST lin OBJECTIVE FUNCTION = 2.63371794818969"
     ## [1] "CURRNET METHOD: nonlin"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'nonlin' , seasonal.factor =  c( 28 ) ...)"
-    ## [1] "CURRENT nonlin OBJECTIVE FUNCTION = 3.2087010413102"
+    ## [1] "CURRENT nonlin OBJECTIVE FUNCTION = 3.31929620032507"
     ## [1] "BEST method = 'nonlin' PATH MEMBER = c( 28 )"
-    ## [1] "BEST nonlin OBJECTIVE FUNCTION = 3.2087010413102"
+    ## [1] "BEST nonlin OBJECTIVE FUNCTION = 3.31929620032507"
     ## [1] "CURRNET METHOD: both"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'both' , seasonal.factor =  c( 28 ) ...)"
-    ## [1] "CURRENT both OBJECTIVE FUNCTION = 2.45734703344893"
+    ## [1] "CURRENT both OBJECTIVE FUNCTION = 2.65890127286409"
     ## [1] "BEST method = 'both' PATH MEMBER = c( 28 )"
-    ## [1] "BEST both OBJECTIVE FUNCTION = 2.45734703344893"
+    ## [1] "BEST both OBJECTIVE FUNCTION = 2.65890127286409"
 
 ![](man/figures/README-nns_forecasting-7.png)<!-- -->
 
@@ -389,23 +391,23 @@ data_list |>
     ## [1] "CURRNET METHOD: lin"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'lin' , seasonal.factor =  c( 84 ) ...)"
-    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 3.30991988120354"
+    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 3.13880048228809"
     ## [1] "NNS.ARMA(... method =  'lin' , seasonal.factor =  c( 84, 28 ) ...)"
-    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 2.90350293056764"
+    ## [1] "CURRENT lin OBJECTIVE FUNCTION = 2.8241828777476"
     ## [1] "BEST method = 'lin', seasonal.factor = c( 84, 28 )"
-    ## [1] "BEST lin OBJECTIVE FUNCTION = 2.90350293056764"
+    ## [1] "BEST lin OBJECTIVE FUNCTION = 2.8241828777476"
     ## [1] "CURRNET METHOD: nonlin"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'nonlin' , seasonal.factor =  c( 84, 28 ) ...)"
-    ## [1] "CURRENT nonlin OBJECTIVE FUNCTION = 4.56457094983684"
+    ## [1] "CURRENT nonlin OBJECTIVE FUNCTION = 4.51267603176198"
     ## [1] "BEST method = 'nonlin' PATH MEMBER = c( 84, 28 )"
-    ## [1] "BEST nonlin OBJECTIVE FUNCTION = 4.56457094983684"
+    ## [1] "BEST nonlin OBJECTIVE FUNCTION = 4.51267603176198"
     ## [1] "CURRNET METHOD: both"
     ## [1] "COPY LATEST PARAMETERS DIRECTLY FOR NNS.ARMA() IF ERROR:"
     ## [1] "NNS.ARMA(... method =  'both' , seasonal.factor =  c( 84, 28 ) ...)"
-    ## [1] "CURRENT both OBJECTIVE FUNCTION = 3.2509545355527"
+    ## [1] "CURRENT both OBJECTIVE FUNCTION = 3.1871026246212"
     ## [1] "BEST method = 'both' PATH MEMBER = c( 84, 28 )"
-    ## [1] "BEST both OBJECTIVE FUNCTION = 3.2509545355527"
+    ## [1] "BEST both OBJECTIVE FUNCTION = 3.1871026246212"
 
 ![](man/figures/README-nns_forecasting-8.png)<!-- -->
 
@@ -507,14 +509,14 @@ nested_data_tbl
     ## # A tibble: 8 × 4
     ##   package       .actual_data         .future_data      .splits          
     ##   <fct>         <list>               <list>            <list>           
-    ## 1 healthyR.data <tibble [1,624 × 2]> <tibble [28 × 2]> <split [1596|28]>
-    ## 2 healthyR      <tibble [1,617 × 2]> <tibble [28 × 2]> <split [1589|28]>
-    ## 3 healthyR.ts   <tibble [1,561 × 2]> <tibble [28 × 2]> <split [1533|28]>
-    ## 4 healthyverse  <tibble [1,531 × 2]> <tibble [28 × 2]> <split [1503|28]>
-    ## 5 healthyR.ai   <tibble [1,356 × 2]> <tibble [28 × 2]> <split [1328|28]>
-    ## 6 TidyDensity   <tibble [1,207 × 2]> <tibble [28 × 2]> <split [1179|28]>
-    ## 7 tidyAML       <tibble [815 × 2]>   <tibble [28 × 2]> <split [787|28]> 
-    ## 8 RandomWalker  <tibble [237 × 2]>   <tibble [28 × 2]> <split [209|28]>
+    ## 1 healthyR.data <tibble [1,625 × 2]> <tibble [28 × 2]> <split [1597|28]>
+    ## 2 healthyR      <tibble [1,618 × 2]> <tibble [28 × 2]> <split [1590|28]>
+    ## 3 healthyR.ts   <tibble [1,562 × 2]> <tibble [28 × 2]> <split [1534|28]>
+    ## 4 healthyverse  <tibble [1,532 × 2]> <tibble [28 × 2]> <split [1504|28]>
+    ## 5 healthyR.ai   <tibble [1,357 × 2]> <tibble [28 × 2]> <split [1329|28]>
+    ## 6 TidyDensity   <tibble [1,208 × 2]> <tibble [28 × 2]> <split [1180|28]>
+    ## 7 tidyAML       <tibble [816 × 2]>   <tibble [28 × 2]> <split [788|28]> 
+    ## 8 RandomWalker  <tibble [238 × 2]>   <tibble [28 × 2]> <split [210|28]>
 
 Now it is time to make some recipes and models using the modeltime
 workflow.
@@ -613,38 +615,38 @@ nested_modeltime_tbl %>%
 
 | package | .model_id | .model_desc | .type | mae | mape | mase | smape | rmse | rsq |
 |:---|---:|:---|:---|---:|---:|---:|---:|---:|---:|
-| healthyR.data | 1 | ARIMA | Test | 0.6643564 | 130.93597 | 0.6702112 | 120.34847 | 0.8726545 | 0.0981020 |
-| healthyR.data | 2 | LM | Test | 0.7172022 | 193.41094 | 0.7235227 | 122.07357 | 0.9245145 | 0.0143118 |
-| healthyR.data | 3 | EARTH | Test | 0.8317855 | 339.46317 | 0.8391158 | 117.44200 | 1.0380328 | 0.0143118 |
-| healthyR.data | 4 | NNAR | Test | 0.7572201 | 97.42429 | 0.7638932 | 164.71654 | 0.9584140 | 0.0009887 |
-| healthyR | 1 | ARIMA | Test | 0.7020356 | 110.95041 | 0.8663068 | 183.99216 | 0.8554667 | 0.0263060 |
-| healthyR | 2 | LM | Test | 0.6610245 | 92.43868 | 0.8156993 | 168.27837 | 0.8200085 | 0.1234108 |
-| healthyR | 3 | EARTH | Test | 0.6261111 | 91.18607 | 0.7726166 | 134.23662 | 0.7839458 | 0.1234108 |
-| healthyR | 4 | NNAR | Test | 0.6807377 | 88.34891 | 0.8400253 | 142.51771 | 0.8676842 | 0.0492700 |
-| healthyR.ts | 1 | ARIMA | Test | 0.7615714 | 97.29009 | 0.7283078 | 181.93410 | 0.9565496 | 0.0563422 |
-| healthyR.ts | 2 | LM | Test | 0.9128714 | 243.68274 | 0.8729993 | 151.16473 | 1.1172384 | 0.0563422 |
-| healthyR.ts | 3 | EARTH | Test | 0.8216284 | 355.72480 | 0.7857416 | 124.24629 | 1.0296498 | 0.0563422 |
-| healthyR.ts | 4 | NNAR | Test | 0.7757656 | 96.50444 | 0.7418820 | 176.71284 | 0.9931942 | 0.1515837 |
-| healthyverse | 1 | ARIMA | Test | 0.6664596 | 345.68641 | 1.1258590 | 103.78642 | 0.8160076 | 0.1788551 |
-| healthyverse | 2 | LM | Test | 0.6006058 | 361.84876 | 1.0146113 | 92.57218 | 0.7194607 | 0.1226976 |
-| healthyverse | 3 | EARTH | Test | 0.6121164 | 235.00913 | 1.0340564 | 103.61705 | 0.7722537 | 0.1226976 |
-| healthyverse | 4 | NNAR | Test | 0.6733437 | 231.23811 | 1.1374885 | 114.19476 | 0.8573958 | 0.1078285 |
-| healthyR.ai | 1 | ARIMA | Test | 0.7751215 | 126.85364 | 0.9432578 | 173.86220 | 1.0360417 | 0.0032609 |
-| healthyR.ai | 2 | LM | Test | 0.7632431 | 137.97708 | 0.9288028 | 158.57738 | 1.0372014 | 0.0398767 |
-| healthyR.ai | 3 | EARTH | Test | 1.0772859 | 366.01298 | 1.3109665 | 138.85050 | 1.3866004 | 0.0398767 |
-| healthyR.ai | 4 | NNAR | Test | 0.7797595 | 142.51396 | 0.9489019 | 159.90766 | 1.0461446 | 0.0040528 |
-| TidyDensity | 1 | ARIMA | Test | 0.5402360 | 252.78431 | 1.0154746 | 114.61466 | 0.6593336 | 0.0986201 |
-| TidyDensity | 2 | LM | Test | 0.5866033 | 357.39826 | 1.1026306 | 110.35668 | 0.7103557 | 0.1095095 |
-| TidyDensity | 3 | EARTH | Test | 0.5055462 | 235.27852 | 0.9502686 | 112.55574 | 0.6092094 | 0.1095095 |
-| TidyDensity | 4 | NNAR | Test | 0.5572818 | 147.72695 | 1.0475154 | 132.59454 | 0.7128017 | 0.1106628 |
-| tidyAML | 1 | ARIMA | Test | 0.6869953 | 193.19808 | 0.9627023 | 103.21676 | 0.8180919 | 0.0060391 |
-| tidyAML | 2 | LM | Test | 0.6647038 | 194.01854 | 0.9314647 | 95.94669 | 0.7946783 | 0.1791614 |
-| tidyAML | 3 | EARTH | Test | 0.7099175 | 127.70753 | 0.9948237 | 117.07882 | 0.8664244 | 0.1791614 |
-| tidyAML | 4 | NNAR | Test | 0.6959626 | 186.64064 | 0.9752683 | 102.84517 | 0.8452958 | 0.0468317 |
-| RandomWalker | 1 | ARIMA | Test | 1.1549704 | 139.31149 | 0.5438524 | 136.22421 | 1.3861729 | 0.1590145 |
-| RandomWalker | 2 | LM | Test | 1.2761091 | 108.58506 | 0.6008941 | 182.45951 | 1.4870229 | 0.0005989 |
-| RandomWalker | 3 | EARTH | Test | 1.2762036 | 111.43798 | 0.6009386 | 176.77290 | 1.4944625 | NA |
-| RandomWalker | 4 | NNAR | Test | 1.2512534 | 191.06138 | 0.5891901 | 166.30140 | 1.4438676 | 0.0438279 |
+| healthyR.data | 1 | ARIMA | Test | 0.6705702 | 136.20200 | 0.6652016 | 122.01554 | 0.8816281 | 0.0829962 |
+| healthyR.data | 2 | LM | Test | 0.7028434 | 186.15519 | 0.6972164 | 117.06801 | 0.9166902 | 0.0119946 |
+| healthyR.data | 3 | EARTH | Test | 0.7056258 | 229.28195 | 0.6999764 | 109.81371 | 0.9356272 | 0.0119946 |
+| healthyR.data | 4 | NNAR | Test | 0.7636554 | 93.05739 | 0.7575415 | 169.25545 | 0.9619152 | 0.0000524 |
+| healthyR | 1 | ARIMA | Test | 0.7176757 | 118.13965 | 0.8568407 | 188.15884 | 0.8667737 | 0.0161103 |
+| healthyR | 2 | LM | Test | 0.6655294 | 92.29338 | 0.7945826 | 168.55485 | 0.8234029 | 0.0996339 |
+| healthyR | 3 | EARTH | Test | 0.6248254 | 87.88612 | 0.7459857 | 133.20240 | 0.7846517 | 0.0996339 |
+| healthyR | 4 | NNAR | Test | 0.6900002 | 91.73197 | 0.8237985 | 145.79778 | 0.8731823 | 0.0706889 |
+| healthyR.ts | 1 | ARIMA | Test | 0.7726693 | 101.74665 | 0.7373489 | 176.45044 | 0.9661794 | 0.0459446 |
+| healthyR.ts | 2 | LM | Test | 0.9451061 | 247.98520 | 0.9019032 | 156.75751 | 1.1368168 | 0.0459446 |
+| healthyR.ts | 3 | EARTH | Test | 0.7485064 | 290.41090 | 0.7142905 | 120.54642 | 0.9603352 | 0.0459446 |
+| healthyR.ts | 4 | NNAR | Test | 0.7748835 | 95.30984 | 0.7394619 | 172.29547 | 0.9957261 | 0.1021691 |
+| healthyverse | 1 | ARIMA | Test | 0.6329398 | 340.60732 | 1.0120786 | 102.16254 | 0.7763191 | 0.1497952 |
+| healthyverse | 2 | LM | Test | 0.6171287 | 387.27678 | 0.9867965 | 97.44235 | 0.7287623 | 0.0962422 |
+| healthyverse | 3 | EARTH | Test | 0.6933218 | 520.97596 | 1.1086302 | 98.77056 | 0.7699511 | 0.0962422 |
+| healthyverse | 4 | NNAR | Test | 0.6688446 | 272.07305 | 1.0694909 | 112.58839 | 0.8488980 | 0.1890407 |
+| healthyR.ai | 1 | ARIMA | Test | 0.7939504 | 125.52335 | 0.9800884 | 173.52104 | 1.0444786 | 0.0041403 |
+| healthyR.ai | 2 | LM | Test | 0.7749596 | 134.36508 | 0.9566453 | 156.62132 | 1.0433403 | 0.0665794 |
+| healthyR.ai | 3 | EARTH | Test | 0.7766672 | 146.54400 | 0.9587532 | 146.70995 | 1.0589536 | 0.0665794 |
+| healthyR.ai | 4 | NNAR | Test | 0.7950603 | 149.15590 | 0.9814585 | 156.35559 | 1.0519714 | 0.0000685 |
+| TidyDensity | 1 | ARIMA | Test | 0.5423189 | 310.07007 | 1.0084045 | 118.40787 | 0.6595005 | 0.1077803 |
+| TidyDensity | 2 | LM | Test | 0.5938989 | 425.10751 | 1.1043139 | 114.96730 | 0.7163960 | 0.0745517 |
+| TidyDensity | 3 | EARTH | Test | 0.4961884 | 276.92886 | 0.9226280 | 115.32761 | 0.6013233 | 0.0745517 |
+| TidyDensity | 4 | NNAR | Test | 0.5282818 | 162.36573 | 0.9823034 | 130.19426 | 0.6850164 | 0.0713911 |
+| tidyAML | 1 | ARIMA | Test | 0.7016864 | 183.07163 | 0.8909627 | 109.38923 | 0.8296999 | 0.0022905 |
+| tidyAML | 2 | LM | Test | 0.6681722 | 191.71904 | 0.8484082 | 96.19987 | 0.7998208 | 0.0522605 |
+| tidyAML | 3 | EARTH | Test | 0.7183230 | 122.22881 | 0.9120868 | 121.09752 | 0.8764663 | 0.0522605 |
+| tidyAML | 4 | NNAR | Test | 0.7200327 | 180.33456 | 0.9142578 | 111.59695 | 0.8625698 | 0.0305760 |
+| RandomWalker | 1 | ARIMA | Test | 1.1444879 | 118.19900 | 0.5461870 | 139.51894 | 1.3944979 | 0.1454271 |
+| RandomWalker | 2 | LM | Test | 1.2608683 | 105.70859 | 0.6017276 | 181.43958 | 1.4808933 | 0.0002791 |
+| RandomWalker | 3 | EARTH | Test | 1.2580609 | 108.33769 | 0.6003878 | 172.38762 | 1.4897039 | NA |
+| RandomWalker | 4 | NNAR | Test | 1.2393246 | 271.34486 | 0.5914462 | 139.00193 | 1.3738583 | 0.1510245 |
 
 ### Plot Models
 
@@ -681,16 +683,16 @@ best_nested_modeltime_tbl %>%
     ## 
 
     ## # A tibble: 8 × 10
-    ##   package      .model_id .model_desc .type   mae  mape  mase smape  rmse     rsq
-    ##   <fct>            <int> <chr>       <chr> <dbl> <dbl> <dbl> <dbl> <dbl>   <dbl>
-    ## 1 healthyR.da…         1 ARIMA       Test  0.664 131.  0.670 120.  0.873 0.0981 
-    ## 2 healthyR             3 EARTH       Test  0.626  91.2 0.773 134.  0.784 0.123  
-    ## 3 healthyR.ts          1 ARIMA       Test  0.762  97.3 0.728 182.  0.957 0.0563 
-    ## 4 healthyverse         2 LM          Test  0.601 362.  1.01   92.6 0.719 0.123  
-    ## 5 healthyR.ai          1 ARIMA       Test  0.775 127.  0.943 174.  1.04  0.00326
-    ## 6 TidyDensity          3 EARTH       Test  0.506 235.  0.950 113.  0.609 0.110  
-    ## 7 tidyAML              2 LM          Test  0.665 194.  0.931  95.9 0.795 0.179  
-    ## 8 RandomWalker         1 ARIMA       Test  1.15  139.  0.544 136.  1.39  0.159
+    ##   package       .model_id .model_desc .type   mae  mape  mase smape  rmse    rsq
+    ##   <fct>             <int> <chr>       <chr> <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl>
+    ## 1 healthyR.data         1 ARIMA       Test  0.671 136.  0.665 122.  0.882 0.0830
+    ## 2 healthyR              3 EARTH       Test  0.625  87.9 0.746 133.  0.785 0.0996
+    ## 3 healthyR.ts           3 EARTH       Test  0.749 290.  0.714 121.  0.960 0.0459
+    ## 4 healthyverse          2 LM          Test  0.617 387.  0.987  97.4 0.729 0.0962
+    ## 5 healthyR.ai           2 LM          Test  0.775 134.  0.957 157.  1.04  0.0666
+    ## 6 TidyDensity           3 EARTH       Test  0.496 277.  0.923 115.  0.601 0.0746
+    ## 7 tidyAML               2 LM          Test  0.668 192.  0.848  96.2 0.800 0.0523
+    ## 8 RandomWalker          4 NNAR        Test  1.24  271.  0.591 139.  1.37  0.151
 
 ``` r
 best_nested_modeltime_tbl %>%
@@ -729,14 +731,14 @@ nested_modeltime_refit_tbl
     ## # A tibble: 8 × 5
     ##   package       .actual_data .future_data .splits           .modeltime_tables 
     ##   <fct>         <list>       <list>       <list>            <list>            
-    ## 1 healthyR.data <tibble>     <tibble>     <split [1596|28]> <mdl_tm_t [1 × 5]>
-    ## 2 healthyR      <tibble>     <tibble>     <split [1589|28]> <mdl_tm_t [1 × 5]>
-    ## 3 healthyR.ts   <tibble>     <tibble>     <split [1533|28]> <mdl_tm_t [1 × 5]>
-    ## 4 healthyverse  <tibble>     <tibble>     <split [1503|28]> <mdl_tm_t [1 × 5]>
-    ## 5 healthyR.ai   <tibble>     <tibble>     <split [1328|28]> <mdl_tm_t [1 × 5]>
-    ## 6 TidyDensity   <tibble>     <tibble>     <split [1179|28]> <mdl_tm_t [1 × 5]>
-    ## 7 tidyAML       <tibble>     <tibble>     <split [787|28]>  <mdl_tm_t [1 × 5]>
-    ## 8 RandomWalker  <tibble>     <tibble>     <split [209|28]>  <mdl_tm_t [1 × 5]>
+    ## 1 healthyR.data <tibble>     <tibble>     <split [1597|28]> <mdl_tm_t [1 × 5]>
+    ## 2 healthyR      <tibble>     <tibble>     <split [1590|28]> <mdl_tm_t [1 × 5]>
+    ## 3 healthyR.ts   <tibble>     <tibble>     <split [1534|28]> <mdl_tm_t [1 × 5]>
+    ## 4 healthyverse  <tibble>     <tibble>     <split [1504|28]> <mdl_tm_t [1 × 5]>
+    ## 5 healthyR.ai   <tibble>     <tibble>     <split [1329|28]> <mdl_tm_t [1 × 5]>
+    ## 6 TidyDensity   <tibble>     <tibble>     <split [1180|28]> <mdl_tm_t [1 × 5]>
+    ## 7 tidyAML       <tibble>     <tibble>     <split [788|28]>  <mdl_tm_t [1 × 5]>
+    ## 8 RandomWalker  <tibble>     <tibble>     <split [210|28]>  <mdl_tm_t [1 × 5]>
 
 ``` r
 nested_modeltime_refit_tbl %>%
