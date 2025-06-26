@@ -3,7 +3,7 @@ pacman::p_load(
     "healthyverse",
     "timetk",
     "modeltime",
-    "modeltime.h2o",
+   # "modeltime.h2o",
     "modeltime.resample",
     "modeltime",
     "tidyverse",
