@@ -258,7 +258,25 @@ data_list |>
             x <- obj |> pull(value) |> tail(7*52)
             train_set_size <- length(x) - 56
             pkg <- obj |> pluck(1) |> unique()
-            sf <- NNS.seas(x, modulo = 7, plot = FALSE)$periods
+#            sf <- NNS.seas(x, modulo = 7, plot = FALSE)$periods
+            seas <- t(
+                sapply(
+                    1:25, 
+                    function(i) c(
+                        i,
+                        sqrt(
+                            mean((
+                                NNS.ARMA(x, 
+                                         h = 28, 
+                                         training.set = train_set_size, 
+                                         method = "lin", 
+                                         seasonal.factor = i, 
+                                         plot=FALSE
+                                         ) - tail(AirPassengers, 44)) ^ 2)))
+                    )
+                )
+            colnames(seas) <- c("Period", "RMSE")
+            sf <- seas[which.min(seas[, 2]), 1]
             
             cat(paste0("Package: ", pkg, "\n"))
             NNS.ARMA.optim(
