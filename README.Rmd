@@ -1,9 +1,11 @@
 ---
-title: "Time Series Analysis and Nested Modeling of the Healthyverse Packages"
+title: "Time Series Analysis, Modeling and Forecasting of the Healthyverse Packages"
 output: github_document
 always_allow_html: true
 author: "Steven P. Sanderson II, MPH - Date: "
 date: "`r format(Sys.time(), '%d %B, %Y')`"
+description: "A time series analysis, modeling, and forecasting of the healthyverse packages using Modeltime and NNS."
+keywords: ["R", "Time Series", "Forecasting", "Modeltime", "NNS", "Healthyverse"]
 ---
 
 ```{r setup, include=FALSE}
