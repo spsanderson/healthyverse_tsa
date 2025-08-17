@@ -274,7 +274,7 @@ data_list |>
                                          method = "lin", 
                                          seasonal.factor = i, 
                                          plot=FALSE
-                                         ) - tail(AirPassengers, 44)) ^ 2)))
+                                         ) - tail(x, 28)) ^ 2)))
                     )
                 )
             colnames(seas) <- c("Period", "RMSE")
