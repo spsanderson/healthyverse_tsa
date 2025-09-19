@@ -22,8 +22,6 @@ source("00_scripts/get_data_functions.R")
 source("00_scripts/helper_functions.R")
 source("00_scripts/data_manipulation_functions.R")
 source("00_scripts/ts_decomp.R")
-
-n_cores = 7
 ```
 
 This analysis follows a _Nested Modeltime Workflow_.
