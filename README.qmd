@@ -1,0 +1,552 @@
+---
+title: "Time Series Analysis, Modeling and Forecasting of the Healthyverse Packages"
+format: gfm
+theme: darkly
+author: "Steven P. Sanderson II, MPH - Date: "
+date: today
+description: "A time series analysis, modeling, and forecasting of the healthyverse packages using Modeltime and NNS."
+keywords: ["R", "Time Series", "Forecasting", "Modeltime", "NNS", "Healthyverse"]
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = TRUE,
+    message = FALSE,
+    warning = FALSE,
+    fig.path = "man/figures/README-",
+    fig.width = 12,
+    fig.height = 10
+)
+source("00_scripts/load_libraries.R")
+source("00_scripts/get_data_functions.R")
+source("00_scripts/helper_functions.R")
+source("00_scripts/data_manipulation_functions.R")
+source("00_scripts/ts_decomp.R")
+```
+
+# Introduction
+
+This analysis follows a _Nested Modeltime Workflow_ from **`modeltime`** along with using the **`NNS`** package. I use this to monitor the downloads of all of my packages:
+
+- [`healthyR`](https://www.spsanderson.com/healthyR/)
+- [`healthyR.data`](https://www.spsanderson.com/healthyR.data/)
+- [`healthyR.ts`](https://www.spsanderson.com/healthyR.ts/)
+- [`healthyR.ai`](https://www.spsanderson.com/healthyR.ai/)
+- [`healthyverse`](https://www.spsanderson.com/healthyverse/)
+- [`TidyDensity`](https://www.spsanderson.com/TidyDensity/)
+- [`tidyAML`](https://www.spsanderson.com/tidyAML/)
+- [`RandomWalker`](https://www.spsanderson.com/RandomWalker/)
+
+## Get Data
+
+```{r get_data, echo=FALSE}
+get_cran_data()
+get_package_release_data()
+csv_to_rds()
+downloads_tbl <- downloads_processed_tbl()
+pkg_tbl <- readRDS("01_data/pkg_release_tbl.rds") %>%
+    mutate(date = as.Date(date))
+```
+
+```{r glimpse_data}
+glimpse(downloads_tbl)
+```
+
+The last day in the data set is `r max_cran_datetime()`, the file was birthed on:
+`r dl_birth_datetime()`, and at report knit time is `r hours_since_cran_log_update() * -1` 
+hours old. `r update_log_message()`
+
+Now that we have our data lets take a look at it using the `skimr` package.
+
+```{r skim_data}
+skim(downloads_tbl)
+```
+
+We can see that the following columns are missing a lot of data and for us are most
+likely not useful anyways, so we will drop them `c(r_version, r_arch, r_os)`
+
+```{r data_trimmed, echo=FALSE}
+data_tbl <- downloads_tbl %>%
+    select(-r_version, -r_arch, -r_os)
+```
+
+## Plots
+
+Now lets take a look at a time-series plot of the total daily downloads by package.
+We will use a log scale and place a vertical line at each version release for each
+package.
+
+```{r initial_ts_plot, echo=FALSE}
+md <- ts_downloads_tbl(data_tbl, "day", package) %>% 
+  ungroup() %>% 
+  select(date) %>% 
+  distinct() %>% 
+  filter(date == max(date)) %>%
+  pull(date)
+
+last_values <- ts_downloads_tbl(data_tbl, "day", package) %>% 
+  ungroup() %>%
+  filter(date == md)
+
+ts_downloads_tbl(
+    .data = data_tbl,
+    .by_time = "week",
+    package
+) %>%
+  #filter(date >= subtract_time(md, "1 year")) %>%
+  ggplot(aes(date, log1p(value))) +
+  theme_bw() +
+  geom_point(aes(group = package, color = package), size = 1) +
+  ggtitle(paste("Package Downloads: {healthyverse}")) +
+  geom_smooth(method = "loess", color = "black",  se = FALSE) +
+  geom_vline(
+    data = pkg_tbl
+    , aes(xintercept = as.numeric(date))
+    , color = "red"
+    , lwd = 1
+    , lty = "solid"
+  ) +
+  geom_point(
+    shape = 21, size = 5, color = "red",
+    data  = last_values,
+    mapping = aes(x = date, y = log1p(value))
+  ) +
+  facet_wrap(package ~., ncol = 2, scales = "free_x") +
+  theme_minimal() +
+  labs(
+    subtitle = "Vertical lines represent release dates",
+    x = "Date",
+    y = "log1p(Counts)",
+    color = "Package"
+  ) +
+  theme(legend.position = "bottom")
+
+ts_downloads_tbl(
+    .data = data_tbl,
+    .by_time = "week"
+) %>%
+  select(date, value) %>%
+  summarise_by_time(
+    .date_var = date,
+    .by = "week",
+    Actual = (sum(value, na.rm = TRUE))
+  ) %>%
+    mutate(Actual = cumsum(Actual)) %>%
+  tk_augment_differences(.value = Actual, .lags = c(1, 2)) %>%
+  rename(velocity = contains("_lag1")) %>%
+  rename(acceleration = contains("_lag2")) %>%
+  pivot_longer(-date) %>%
+#  filter(date >= subtract_time(md, "1 year")) %>%
+  mutate(name = str_to_title(name)) %>%
+  mutate(name = as_factor(name)) %>%
+  ggplot(aes(x = date, y = log1p(value), group = name)) +
+  geom_point(alpha = .2) +
+  geom_line() +
+  geom_vline(
+    data = pkg_tbl
+    , aes(xintercept = date, color = package)
+    , lwd = 1
+    , lty = "solid"
+  ) +
+  facet_wrap(name ~ ., ncol = 1, scale = "free") +
+  theme_minimal() +
+  labs(
+    title = "Total Downloads: Trend, Velocity, and Accelertion",
+    subtitle = "Vertical Lines Indicate a CRAN Release date for a package.",
+    x = "Date",
+    y = "Values",
+    color = ""
+  ) +
+  theme(legend.position = "bottom")
+```
+
+Now lets take a look at some time series decomposition graphs.
+
+```{r ts_decomp_plt, echo=FALSE}
+ts_downloads_tbl(
+    .data = data_tbl,
+    .by_time = "week",
+    package
+) |>
+    group_split(package) |>
+    map(\(x) x |>    
+        plot_stl_diagnostics(
+        .date_var = date,
+        .value = log1p(value),
+        .interactive = FALSE
+    ) +
+        theme_minimal() +
+        labs(
+            title = "STL Diagnositcs: log1p(Values) - Weekly Aggregation",
+            subtitle = x$package
+            )
+    )
+
+ts_downloads_tbl(
+    .data = data_tbl,
+    .by_time = "month",
+    package
+) |>
+    group_split(package) |>
+    map(\(x) x |>    
+        plot_stl_diagnostics(
+        .date_var = date,
+        .value = log1p(value),
+        .interactive = FALSE
+    ) +
+        theme_minimal() +
+        labs(
+            title = "STL Diagnositcs: log1p(Values) - Monthly Aggregation",
+            subtitle = x$package
+            )
+    )
+
+ts_downloads_tbl(
+    .data = data_tbl,
+    .by_time = "day",
+    package
+) |>
+    group_split(package) |>
+    map(\(x) x |>    
+        plot_seasonal_diagnostics(
+        .date_var = date,
+        .value = log1p(value),
+        .interactive = FALSE
+    ) +
+        theme_minimal() +
+        labs(
+            title = "Seasonal Diagnositcs: log1p(Values)",
+            subtitle = x$package
+            )
+    )
+```
+
+## Feature Engineering
+
+Now that we have our basic data and a shot of what it looks like, let's add some
+features to our data which can be very helpful in modeling. Lets start by making
+a `tibble` that is aggregated by the day and package, as we are going to be interested
+in forecasting the next 4 weeks or 28 days for each package. First lets get our base data.
+
+```{r base_data_frame, echo=FALSE}
+ts_downloads_tbl(data_tbl) |> 
+    plot_time_series_regression(
+        date, 
+        (value) ~ date + lag(value, 1) + lag(value, 7) + lag(value, 14) 
+        + lag(value, 21) + lag(value, 28) + lag(value, 35) 
+        + lag(value, 42) + lag(value, 49) + month(date, label = TRUE) 
+        + fourier_vec(date, type = "sin", K = 1, period = 7) 
+        + fourier_vec(date, type = "cos", K = 1, period = 7), 
+        .show_summary = TRUE
+    )
+
+base_data <- ts_downloads_tbl(
+  .data    = data_tbl,
+  .by_time = "day",
+  package
+) %>%
+    #filter(date >= subtract_time(date, "18 months")) %>%
+    mutate(package = factor(package)) %>%
+    select(package, date, value)
+```
+
+## NNS Forecasting
+
+This is something I have been wanting to try for a while. The `NNS` package is a
+great package for forecasting time series data.
+
+[NNS GitHub](https://github.com/OVVO-Financial/NNS)
+```{r nns_forecasting, message=FALSE, warning=FALSE}
+library(NNS)
+
+data_list <- base_data |>
+    select(package, value) |>
+    group_split(package)
+
+data_list |>
+    imap(
+        \(x, idx) {
+            obj <- x
+            x <- obj |> pull(value) |> tail(7*52)
+            train_set_size <- length(x) - 56
+            pkg <- obj |> pluck(1) |> unique()
+#            sf <- NNS.seas(x, modulo = 7, plot = FALSE)$periods
+            seas <- t(
+                sapply(
+                    1:25, 
+                    function(i) c(
+                        i,
+                        sqrt(
+                            mean((
+                                NNS.ARMA(x, 
+                                         h = 28, 
+                                         training.set = train_set_size, 
+                                         method = "lin", 
+                                         seasonal.factor = i, 
+                                         plot=FALSE
+                                         ) - tail(x, 28)) ^ 2)))
+                    )
+                )
+            colnames(seas) <- c("Period", "RMSE")
+            sf <- seas[which.min(seas[, 2]), 1]
+            
+            cat(paste0("Package: ", pkg, "\n"))
+            NNS.ARMA.optim(
+                variable = x,
+                h = 28,
+                training.set = train_set_size,
+                #seasonal.factor = seq(12, 60, 7),
+                seasonal.factor = sf,
+                pred.int = 0.95,
+                plot = TRUE
+            )
+            title(
+                sub = paste0("\n",
+                             "Package: ", pkg, " - NNS Optimization")
+            )
+        }
+    )
+```
+
+## Pre-Processing
+
+Now we are going to do some basic pre-processing.
+
+```{r preprocess, message=FALSE}
+data_padded_tbl <- base_data %>%
+  pad_by_time(
+    .date_var  = date,
+    .pad_value = 0
+  )
+
+# Get log interval and standardization parameters
+log_params  <- liv(data_padded_tbl$value, limit_lower = 0, offset = 1, silent = TRUE)
+limit_lower <- log_params$limit_lower
+limit_upper <- log_params$limit_upper
+offset      <- log_params$offset
+
+data_liv_tbl <- data_padded_tbl %>%
+  # Get log interval transform
+  mutate(value_trans = liv(value, limit_lower = 0, offset = 1, silent = TRUE)$log_scaled)
+
+# Get Standardization Params
+std_params <- standard_vec(data_liv_tbl$value_trans, silent = TRUE)
+std_mean   <- std_params$mean
+std_sd     <- std_params$sd
+
+data_transformed_tbl <- data_liv_tbl %>%
+  # get standardization
+  mutate(value_trans = standard_vec(value_trans, silent = TRUE)$standard_scaled) %>%
+  select(-value)
+```
+
+
+Since this is panel data we can follow one of two different modeling strategies. 
+We can search for a global model in the panel data or we can use nested forecasting
+finding the best model for each of the time series. Since we only have 5 panels, we
+will use nested forecasting.
+
+To do this we will use the `nest_timeseries` and `split_nested_timeseries` functions
+to create a nested `tibble`.
+
+```{r nested_data}
+horizon <- 4*7
+
+nested_data_tbl <- data_transformed_tbl %>%
+
+    # 0. Filter out column where package is NA
+    filter(!is.na(package)) %>%
+    
+    # 1. Extending: We'll predict n days into the future.
+    extend_timeseries(
+        .id_var        = package,
+        .date_var      = date,
+        .length_future = horizon
+    ) %>%
+    
+    # 2. Nesting: We'll group by id, and create a future dataset
+    #    that forecasts n days of extended data and
+    #    an actual dataset that contains n*2 days
+    nest_timeseries(
+        .id_var        = package,
+        .length_future = horizon
+        #.length_actual = horizon*2
+    ) %>%
+    
+   # 3. Splitting: We'll take the actual data and create splits
+   #    for accuracy and confidence interval estimation of n das (test)
+   #    and the rest is training data
+    split_nested_timeseries(
+        .length_test = horizon
+    )
+
+nested_data_tbl
+```
+
+Now it is time to make some recipes and models using the modeltime workflow.
+
+## Modeltime Workflow
+
+### Recipe Object
+
+```{r rec_obj}
+recipe_base <- recipe(
+  value_trans ~ date
+  , data = extract_nested_test_split(nested_data_tbl)
+  )
+
+recipe_base
+
+recipe_date <- recipe_base %>%
+    step_mutate(date = as.numeric(date))
+
+```
+
+### Models
+```{r time_series_models}
+# Models ------------------------------------------------------------------
+
+# Auto ARIMA --------------------------------------------------------------
+
+model_spec_arima_no_boost <- arima_reg() %>%
+  set_engine(engine = "auto_arima")
+
+wflw_auto_arima <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_arima_no_boost)
+
+# NNETAR ------------------------------------------------------------------
+
+model_spec_nnetar <- nnetar_reg(
+  mode              = "regression"
+  , seasonal_period = "auto"
+) %>%
+  set_engine("nnetar")
+
+wflw_nnetar <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_nnetar)
+
+# TSLM --------------------------------------------------------------------
+
+model_spec_lm <- linear_reg() %>%
+  set_engine("lm")
+
+wflw_lm <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_lm)
+
+# MARS --------------------------------------------------------------------
+
+model_spec_mars <- mars(mode = "regression") %>%
+  set_engine("earth")
+
+wflw_mars <- workflow() %>%
+  add_recipe(recipe = recipe_base) %>%
+  add_model(model_spec_mars)
+
+```
+
+
+### Nested Modeltime Tables
+```{r nested_modeltime_tables}
+nested_modeltime_tbl <- modeltime_nested_fit(
+  # Nested Data
+  nested_data = nested_data_tbl,
+   control = control_nested_fit(
+     verbose = TRUE,
+     allow_par = FALSE
+   ),
+  # Add workflows
+  wflw_auto_arima,
+  wflw_lm,
+  wflw_mars,
+  wflw_nnetar
+)
+
+nested_modeltime_tbl <- nested_modeltime_tbl[!is.na(nested_modeltime_tbl$package),]
+```
+
+### Model Accuracy
+```{r accuracy}
+nested_modeltime_tbl %>%
+  extract_nested_test_accuracy() %>%
+  filter(!is.na(package)) %>%
+  knitr::kable()
+```
+
+### Plot Models
+```{r model_plot}
+nested_modeltime_tbl %>%
+  extract_nested_test_forecast() %>%
+  group_by(package) %>%
+  plot_modeltime_forecast(
+    .interactive = FALSE,
+    .conf_interval_show  = FALSE,
+    .facet_scales = "free"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+### Best Model
+```{r best_model}
+best_nested_modeltime_tbl <- nested_modeltime_tbl %>%
+  modeltime_nested_select_best(
+    metric = "rmse",
+    minimize = TRUE,
+    filter_test_forecasts = TRUE
+  )
+
+best_nested_modeltime_tbl %>%
+  extract_nested_best_model_report()
+
+best_nested_modeltime_tbl %>%
+  extract_nested_test_forecast() %>%
+  #filter(!is.na(.model_id)) %>%
+  group_by(package) %>%
+  plot_modeltime_forecast(
+    .interactive = FALSE,
+    .conf_interval_alpha = 0.2,
+    .facet_scales = "free"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+## Refitting and Future Forecast
+
+Now that we have the best models, we can make our future forecasts.
+
+```{r refit}
+
+nested_modeltime_refit_tbl <- best_nested_modeltime_tbl %>%
+    modeltime_nested_refit(
+        control = control_nested_refit(verbose = TRUE)
+    )
+
+
+nested_modeltime_refit_tbl
+
+nested_modeltime_refit_tbl %>%
+  extract_nested_future_forecast() %>%
+  mutate(across(.value:.conf_hi, .fns = ~ standard_inv_vec(
+    x    = .,
+    mean = std_mean,
+    sd   = std_sd
+  )$standard_inverse_value)) %>%
+  mutate(across(.value:.conf_hi, .fns = ~ liiv(
+    x = .,
+    limit_lower = limit_lower,
+    limit_upper = limit_upper,
+    offset      = offset
+  )$rescaled_v)) %>%
+  group_by(package) %>%
+  plot_modeltime_forecast(
+    .interactive = FALSE,
+    .conf_interval_alpha = 0.2,
+    .facet_scales = "free"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
