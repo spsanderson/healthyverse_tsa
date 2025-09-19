@@ -196,44 +196,87 @@ Now lets take a look at some time series decomposition graphs.
 
 ![](man/figures/README-ts_decomp_plt-16.png)
 
+Seasonal Diagnostics:
+
     [[1]]
 
-![](man/figures/README-ts_decomp_plt-17.png)
+![](man/figures/README-ts_decomp_seasonal_plt-1.png)
 
 
     [[2]]
 
-![](man/figures/README-ts_decomp_plt-18.png)
+![](man/figures/README-ts_decomp_seasonal_plt-2.png)
 
 
     [[3]]
 
-![](man/figures/README-ts_decomp_plt-19.png)
+![](man/figures/README-ts_decomp_seasonal_plt-3.png)
 
 
     [[4]]
 
-![](man/figures/README-ts_decomp_plt-20.png)
+![](man/figures/README-ts_decomp_seasonal_plt-4.png)
 
 
     [[5]]
 
-![](man/figures/README-ts_decomp_plt-21.png)
+![](man/figures/README-ts_decomp_seasonal_plt-5.png)
 
 
     [[6]]
 
-![](man/figures/README-ts_decomp_plt-22.png)
+![](man/figures/README-ts_decomp_seasonal_plt-6.png)
 
 
     [[7]]
 
-![](man/figures/README-ts_decomp_plt-23.png)
+![](man/figures/README-ts_decomp_seasonal_plt-7.png)
 
 
     [[8]]
 
-![](man/figures/README-ts_decomp_plt-24.png)
+![](man/figures/README-ts_decomp_seasonal_plt-8.png)
+
+ACF and PACF Diagnostics:
+
+    [[1]]
+
+![](man/figures/README-ts_decomp_acf_plt-1.png)
+
+
+    [[2]]
+
+![](man/figures/README-ts_decomp_acf_plt-2.png)
+
+
+    [[3]]
+
+![](man/figures/README-ts_decomp_acf_plt-3.png)
+
+
+    [[4]]
+
+![](man/figures/README-ts_decomp_acf_plt-4.png)
+
+
+    [[5]]
+
+![](man/figures/README-ts_decomp_acf_plt-5.png)
+
+
+    [[6]]
+
+![](man/figures/README-ts_decomp_acf_plt-6.png)
+
+
+    [[7]]
+
+![](man/figures/README-ts_decomp_acf_plt-7.png)
+
+
+    [[8]]
+
+![](man/figures/README-ts_decomp_acf_plt-8.png)
 
 ## Feature Engineering
 
@@ -755,35 +798,35 @@ nested_modeltime_tbl %>%
 | healthyR.data | 1 | ARIMA | Test | 0.7752565 | 107.37133 | 1.0132132 | 170.64017 | 1.0135640 | 0.2650526 |
 | healthyR.data | 2 | LM | Test | 0.7716211 | 201.43055 | 1.0084620 | 146.48363 | 0.8854610 | 0.2185563 |
 | healthyR.data | 3 | NULL | NA | NA | NA | NA | NA | NA | NA |
-| healthyR.data | 4 | NNAR | Test | 0.7443222 | 97.86339 | 0.9727840 | 181.71724 | 0.9700430 | 0.3442636 |
+| healthyR.data | 4 | NNAR | Test | 0.7487188 | 99.32304 | 0.9785301 | 172.77404 | 0.9687491 | 0.2541064 |
 | healthyR | 1 | ARIMA | Test | 0.6425372 | 122.06169 | 0.7762256 | 176.45275 | 0.8473912 | 0.0943618 |
 | healthyR | 2 | LM | Test | 0.6131918 | 130.36925 | 0.7407745 | 176.30668 | 0.7718590 | 0.2670959 |
 | healthyR | 3 | NULL | NA | NA | NA | NA | NA | NA | NA |
-| healthyR | 4 | NNAR | Test | 0.6334992 | 147.64148 | 0.7653071 | 169.57116 | 0.7925602 | 0.0044070 |
+| healthyR | 4 | NNAR | Test | 0.6352284 | 144.62052 | 0.7673961 | 171.78057 | 0.7966717 | 0.0062473 |
 | healthyR.ts | 1 | ARIMA | Test | 0.8740105 | 207.79410 | 0.9488322 | 128.94116 | 1.0868002 | 0.0265330 |
 | healthyR.ts | 2 | LM | Test | 0.7745688 | 149.39902 | 0.8408775 | 130.15958 | 1.0017214 | 0.0198478 |
 | healthyR.ts | 3 | NULL | NA | NA | NA | NA | NA | NA | NA |
-| healthyR.ts | 4 | NNAR | Test | 0.8221837 | 113.46553 | 0.8925686 | 167.56515 | 1.0509350 | 0.0255826 |
+| healthyR.ts | 4 | NNAR | Test | 0.8214194 | 112.96846 | 0.8917390 | 168.37934 | 1.0499263 | 0.0292221 |
 | healthyverse | 1 | ARIMA | Test | 0.8006433 | 115.22150 | 1.1465077 | 119.08454 | 0.9623044 | 0.0471446 |
 | healthyverse | 2 | LM | Test | 0.6472446 | 139.89380 | 0.9268433 | 82.88715 | 0.7930593 | 0.1525771 |
 | healthyverse | 3 | NULL | NA | NA | NA | NA | NA | NA | NA |
-| healthyverse | 4 | NNAR | Test | 0.7902146 | 110.39036 | 1.1315740 | 116.07454 | 0.9560555 | 0.0510060 |
+| healthyverse | 4 | NNAR | Test | 0.7857057 | 113.50694 | 1.1251173 | 114.38809 | 0.9493370 | 0.0576803 |
 | healthyR.ai | 1 | ARIMA | Test | 0.9325034 | 96.93244 | 1.0545213 | 156.52248 | 1.4404554 | 0.0637441 |
 | healthyR.ai | 2 | LM | Test | 0.8873994 | 103.29100 | 1.0035155 | 133.32319 | 1.4323226 | 0.2633703 |
 | healthyR.ai | 3 | NULL | NA | NA | NA | NA | NA | NA | NA |
-| healthyR.ai | 4 | NNAR | Test | 0.9647669 | 113.42262 | 1.0910066 | 148.98107 | 1.4818629 | 0.0539845 |
+| healthyR.ai | 4 | NNAR | Test | 0.9623107 | 111.84606 | 1.0882289 | 146.95551 | 1.4792401 | 0.0444237 |
 | TidyDensity | 1 | ARIMA | Test | 0.9296705 | 265.40359 | 0.9970096 | 112.05624 | 1.2580176 | 0.0665311 |
 | TidyDensity | 2 | LM | Test | 0.8986635 | 256.58785 | 0.9637567 | 107.86265 | 1.2238751 | 0.4726077 |
 | TidyDensity | 3 | NULL | NA | NA | NA | NA | NA | NA | NA |
-| TidyDensity | 4 | NNAR | Test | 1.0221432 | 180.59038 | 1.0961804 | 141.06685 | 1.4397460 | 0.1183541 |
+| TidyDensity | 4 | NNAR | Test | 1.0210464 | 179.85977 | 1.0950042 | 140.89143 | 1.4382434 | 0.1121495 |
 | tidyAML | 1 | ARIMA | Test | 0.7696606 | 96.17851 | 0.9203867 | 125.94973 | 0.9149790 | 0.0000965 |
 | tidyAML | 2 | LM | Test | 0.6121462 | 117.22446 | 0.7320256 | 84.06853 | 0.7599146 | 0.0537289 |
 | tidyAML | 3 | NULL | NA | NA | NA | NA | NA | NA | NA |
-| tidyAML | 4 | NNAR | Test | 0.7226614 | 121.34213 | 0.8641835 | 108.07366 | 0.8640343 | 0.0585253 |
+| tidyAML | 4 | NNAR | Test | 0.7262616 | 115.60222 | 0.8684887 | 110.33714 | 0.8667434 | 0.0541420 |
 | RandomWalker | 1 | ARIMA | Test | 1.1240720 | 119.43667 | 0.6490954 | 163.54660 | 1.3897531 | 0.0520620 |
 | RandomWalker | 2 | LM | Test | 1.0838639 | 125.02020 | 0.6258772 | 163.85835 | 1.2927601 | 0.0109127 |
 | RandomWalker | 3 | NULL | NA | NA | NA | NA | NA | NA | NA |
-| RandomWalker | 4 | NNAR | Test | 1.1708581 | 288.04838 | 0.6761120 | 145.74258 | 1.3978414 | 0.0000000 |
+| RandomWalker | 4 | NNAR | Test | 1.0927589 | 177.13425 | 0.6310136 | 146.93010 | 1.2974586 | 0.0032855 |
 
 ### Plot Models
 

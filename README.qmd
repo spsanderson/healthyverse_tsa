@@ -200,7 +200,11 @@ ts_downloads_tbl(
             subtitle = x$package
             )
     )
+```
 
+Seasonal Diagnostics:
+
+```{r ts_decomp_seasonal_plt, echo=FALSE}
 ts_downloads_tbl(
     .data = data_tbl,
     .by_time = "day",
@@ -209,6 +213,28 @@ ts_downloads_tbl(
     group_split(package) |>
     map(\(x) x |>    
         plot_seasonal_diagnostics(
+        .date_var = date,
+        .value = log1p(value),
+        .interactive = FALSE
+    ) +
+        theme_minimal() +
+        labs(
+            title = "Seasonal Diagnositcs: log1p(Values)",
+            subtitle = x$package
+            )
+    )
+```
+
+ACF and PACF Diagnostics:
+```{r ts_decomp_acf_plt, echo=FALSE}
+ts_downloads_tbl(
+    .data = data_tbl,
+    .by_time = "day",
+    package
+) |>
+    group_split(package) |>
+    map(\(x) x |>    
+        plot_acf_diagnostics(
         .date_var = date,
         .value = log1p(value),
         .interactive = FALSE
