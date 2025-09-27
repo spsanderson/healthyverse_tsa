@@ -519,6 +519,7 @@ nested_modeltime_tbl %>%
   extract_nested_test_forecast() %>%
   group_by(package) %>%
   filter_by_time(.date_var = .index, .start_date = max(.index) - 60) %>%
+  ungroup() %>%
   plot_modeltime_forecast(
     .interactive = FALSE,
     .conf_interval_show  = FALSE,
@@ -546,6 +547,7 @@ best_nested_modeltime_tbl %>%
   #filter(!is.na(.model_id)) %>%
   group_by(package) %>%
   filter_by_time(.date_var = .index, .start_date = max(.index) - 60) %>%
+  ungroup() %>%
   plot_modeltime_forecast(
     .interactive = FALSE,
     .conf_interval_alpha = 0.2,
@@ -570,6 +572,7 @@ nested_modeltime_refit_tbl
 
 nested_modeltime_refit_tbl %>%
   extract_nested_future_forecast() %>%
+  group_by(package) %>%
   mutate(across(.value:.conf_hi, .fns = ~ standard_inv_vec(
     x    = .,
     mean = std_mean,
@@ -581,8 +584,8 @@ nested_modeltime_refit_tbl %>%
     limit_upper = limit_upper,
     offset      = offset
   )$rescaled_v)) %>%
-  group_by(package) %>%
   filter_by_time(.date_var = .index, .start_date = max(.index) - 60) %>%
+  ungroup() %>%
   plot_modeltime_forecast(
     .interactive = FALSE,
     .conf_interval_alpha = 0.2,
