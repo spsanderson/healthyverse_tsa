@@ -361,9 +361,19 @@ std_mean   <- std_params$mean
 std_sd     <- std_params$sd
 
 data_transformed_tbl <- data_liv_tbl %>%
+  group_by(package) %>%
   # get standardization
   mutate(value_trans = standard_vec(value_trans, silent = TRUE)$standard_scaled) %>%
-  select(-value)
+  tk_augment_fourier(
+    .date_var = date,
+    .periods  = c(7, 14, 30, 90, 180),
+    .K        = 2
+  ) %>%
+  tk_augment_timeseries_signature(
+    .date_var = date
+  ) %>%
+  ungroup() %>%
+  select(-c(value, -year.iso))
 ```
 
 
@@ -417,14 +427,16 @@ Now it is time to make some recipes and models using the modeltime workflow.
 
 ```{r rec_obj}
 recipe_base <- recipe(
-  value_trans ~ date
+  value_trans ~ .
   , data = extract_nested_test_split(nested_data_tbl)
   )
 
 recipe_base
 
-recipe_date <- recipe_base %>%
-    step_mutate(date = as.numeric(date))
+recipe_date <- recipe(
+  value_trans ~ date
+  , data = extract_nested_test_split(nested_data_tbl)
+  )
 
 ```
 
@@ -438,7 +450,7 @@ model_spec_arima_no_boost <- arima_reg() %>%
   set_engine(engine = "auto_arima")
 
 wflw_auto_arima <- workflow() %>%
-  add_recipe(recipe = recipe_base) %>%
+  add_recipe(recipe = recipe_date) %>%
   add_model(model_spec_arima_no_boost)
 
 # NNETAR ------------------------------------------------------------------
@@ -468,7 +480,7 @@ model_spec_mars <- mars(mode = "regression") %>%
   set_engine("earth")
 
 wflw_mars <- workflow() %>%
-  add_recipe(recipe = recipe_base) %>%
+  add_recipe(recipe = recipe_date) %>%
   add_model(model_spec_mars)
 
 ```
@@ -506,12 +518,14 @@ nested_modeltime_tbl %>%
 nested_modeltime_tbl %>%
   extract_nested_test_forecast() %>%
   group_by(package) %>%
+  filter_by_time(.date_var = .index, .start_date = max(.index) - 60) %>%
   plot_modeltime_forecast(
     .interactive = FALSE,
     .conf_interval_show  = FALSE,
     .facet_scales = "free"
   ) +
   theme_minimal() +
+  facet_wrap(~ package, nrow = 3) +
   theme(legend.position = "bottom")
 ```
 
@@ -531,11 +545,13 @@ best_nested_modeltime_tbl %>%
   extract_nested_test_forecast() %>%
   #filter(!is.na(.model_id)) %>%
   group_by(package) %>%
+  filter_by_time(.date_var = .index, .start_date = max(.index) - 60) %>%
   plot_modeltime_forecast(
     .interactive = FALSE,
     .conf_interval_alpha = 0.2,
     .facet_scales = "free"
   ) +
+  facet_wrap(~ package, nrow = 3) +
   theme_minimal() +
   theme(legend.position = "bottom")
 ```
@@ -545,12 +561,10 @@ best_nested_modeltime_tbl %>%
 Now that we have the best models, we can make our future forecasts.
 
 ```{r refit}
-
 nested_modeltime_refit_tbl <- best_nested_modeltime_tbl %>%
     modeltime_nested_refit(
         control = control_nested_refit(verbose = TRUE)
     )
-
 
 nested_modeltime_refit_tbl
 
@@ -568,11 +582,13 @@ nested_modeltime_refit_tbl %>%
     offset      = offset
   )$rescaled_v)) %>%
   group_by(package) %>%
+  filter_by_time(.date_var = .index, .start_date = max(.index) - 60) %>%
   plot_modeltime_forecast(
     .interactive = FALSE,
     .conf_interval_alpha = 0.2,
     .facet_scales = "free"
   ) +
+  facet_wrap(~ package, nrow = 3) +
   theme_minimal() +
   theme(legend.position = "bottom")
 ```
