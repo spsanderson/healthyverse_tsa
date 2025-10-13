@@ -158,6 +158,46 @@ ts_downloads_tbl(
     color = ""
   ) +
   theme(legend.position = "bottom")
+
+ts_downloads_tbl(data_tbl, "week", package) |>
+  group_split(package) |>
+  imap(
+    .f = function(obj, id){
+      obj |>
+        select(date, value) %>%
+        summarise_by_time(
+        .date_var = date,
+        .by = "week",
+        Actual = (sum(value, na.rm = TRUE))
+      ) %>%
+        mutate(Actual = cumsum(Actual)) %>%
+      tk_augment_differences(.value = Actual, .lags = c(1, 2)) %>%
+      rename(velocity = contains("_lag1")) %>%
+      rename(acceleration = contains("_lag2")) %>%
+      pivot_longer(-date) %>%
+      mutate(name = str_to_title(name)) %>%
+      mutate(name = as_factor(name)) %>%
+      ggplot(aes(x = date, y = log1p(value), group = name)) +
+      geom_point(alpha = .2) +
+      geom_line() +
+      geom_vline(
+        data = filter(pkg_tbl, package == obj$package[1])
+        , aes(xintercept = date, color = package)
+        , lwd = 1
+        , lty = "solid"
+      ) +
+      facet_wrap(name ~ ., ncol = 1, scale = "free") +
+      theme_minimal() +
+      labs(
+        title = "Total Downloads: Trend, Velocity, and Accelertion",
+        subtitle = "Vertical Lines Indicate a CRAN Release date for a package.",
+        x = "Date",
+        y = "Values",
+        color = ""
+      ) +
+      theme(legend.position = "bottom")
+    }
+  )
 ```
 
 Now lets take a look at some time series decomposition graphs.
